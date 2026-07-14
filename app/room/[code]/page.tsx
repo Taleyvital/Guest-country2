@@ -27,16 +27,18 @@ export default function RoomPage({ params }: { params: { code: string } }) {
         setUserId(session?.user.id ?? null);
 
         const supabase = getSupabaseBrowserClient();
-        const [game, pool, mine] = await Promise.all([
+        const [game, pool] = await Promise.all([
           supabase.from("games").select("id").eq("code", code).single(),
           supabase.from("countries").select("name, region").order("name"),
-          // Le joueur a le droit de relire SON pays après une reconnexion.
-          // Celui des autres reste hors de portée : le RPC ne lit que sa ligne.
-          supabase.rpc("my_country"),
         ]);
 
         if (game.error || !game.data) throw new Error("Partie introuvable.");
-        setGameId(game.data.id as string);
+        const id = game.data.id as string;
+        setGameId(id);
+
+        // Relire SON pays après une reconnexion. Scopé à la partie : sans ça, un
+        // joueur présent dans plusieurs parties récupérait le pays d'une autre.
+        const mine = await supabase.rpc("my_country", { p_game_id: id });
 
         // Une erreur ici (table absente, RLS) laissait le picker vide sans un mot :
         // on croyait la recherche cassée alors que le pool n'était jamais arrivé.
@@ -62,7 +64,11 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   const supabase = getSupabaseBrowserClient();
 
   async function pickCountry(name: string) {
-    const { error: e } = await supabase.rpc("pick_country", { p_country: name });
+    if (!gameId) return;
+    const { error: e } = await supabase.rpc("pick_country", {
+      p_game_id: gameId,
+      p_country: name,
+    });
     if (e) return setError(errorMessage(e));
     setMyCountry(name);
     setError(null);

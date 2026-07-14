@@ -57,7 +57,7 @@ for i, name in [(1, "Bob"), (2, "Chloe")]:
 # --- chacun choisit son pays
 SECRET = {0: "FRANCE", 1: "JAPON", 2: "BRESIL"}
 for i in range(3):
-    rpc("pick_country", tok[i], {"p_country": SECRET[i]})
+    rpc("pick_country", tok[i], {"p_game_id": gid, "p_country": SECRET[i]})
 
 players = sel(f"players?game_id=eq.{gid}&select=id,nickname,seat,masked,region,is_cracked,is_eliminated,score,letters_left,asked_letters&order=seat", tok[0])
 pid = {p["nickname"]: p["id"] for p in players}

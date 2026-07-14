@@ -145,7 +145,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         // et l'accueil proposera de reprendre.
         onKeepSeat={() => router.push("/")}
         onLeave={async () => {
-          await call("leave_game", {});
+          await call("leave_game", { p_game_id: game.id });
           router.push("/");
         }}
       />
