@@ -102,7 +102,7 @@ export default function Home() {
   if (!profile) return null; // redirection vers /onboarding en cours
 
   return (
-    <main className="screen flex min-h-dvh flex-col items-center justify-center gap-6 py-10 text-center">
+    <main className="screen flex min-h-dvh flex-col items-center justify-center gap-6 py-10 pb-28 text-center">
       <div>
         <h1 className="text-headline-lg-mobile">Guess the Country</h1>
         <p className="mt-1 text-body-md text-on-surface-variant">
@@ -119,10 +119,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Le pseudo est saisi une fois, à l'onboarding. Ici on ne fait que le rappeler. */}
+      {/* Porte d'entrée du profil : stats, niveau, carnet. La modification du pseudo
+          se fait depuis le profil, pas ici — c'est le geste le plus rare. */}
       <button
         type="button"
-        onClick={() => router.push("/onboarding")}
+        onClick={() => router.push("/profile")}
         className="flex w-full items-center gap-3 rounded-lg bg-white p-3 text-left shadow-card active:scale-[0.99]"
       >
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-[24px]">
@@ -131,10 +132,12 @@ export default function Home() {
         <span className="flex-1">
           <span className="block text-body-lg font-bold">{profile.nickname}</span>
           <span className="block text-label-md text-on-surface-variant">
-            Modifier mon profil
+            Voir mon profil et mes découvertes
           </span>
         </span>
-        <span className="material-symbols-outlined text-on-surface-variant">edit</span>
+        <span className="material-symbols-outlined text-on-surface-variant">
+          chevron_right
+        </span>
       </button>
 
       {/* Une place reste ouverte : on y ramène en un geste. */}

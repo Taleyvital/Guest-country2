@@ -52,11 +52,11 @@ export default function DiscoveriesPage() {
   const discovered = Object.keys(found).length;
 
   return (
-    <main className="screen flex min-h-dvh flex-col gap-6 py-6">
+    <main className="screen flex min-h-dvh flex-col gap-6 py-6 pb-28">
       <header className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push("/profile")}
           aria-label="Retour"
           className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-low"
         >
