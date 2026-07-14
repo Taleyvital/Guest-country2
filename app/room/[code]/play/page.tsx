@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
+import { errorMessage } from "@/lib/errors";
 import { GameScreen } from "@/components/game/GameScreen";
+import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
 export default function PlayPage({ params }: { params: { code: string } }) {
@@ -15,6 +17,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -77,7 +80,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
 
     // Le serveur est l'arbitre : s'il refuse (tour passé entre-temps, lettre déjà
     // demandée), on le dit plutôt que de laisser l'UI mentir.
-    if (e) setError(e.message);
+    if (e) setError(errorMessage(e));
   }, []);
 
   // La manche/partie a basculé : tous les téléphones suivent l'état en base.
@@ -106,13 +109,26 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         totalRounds={game.total_rounds}
         regionHint={me.region ?? undefined}
         countries={countries}
-        onBack={() => router.push("/")}
+        onBack={() => setLeaveOpen(true)}
         onAskLetter={(targetId, letter) =>
           call("ask_letter", { p_target_player_id: targetId, p_letter: letter })
         }
         onGuessCountry={(targetId, guess) =>
           call("submit_guess", { p_target_player_id: targetId, p_guess: guess })
         }
+      />
+
+      <LeaveDialog
+        open={leaveOpen}
+        isPlaying={game.status === "playing"}
+        onClose={() => setLeaveOpen(false)}
+        // Garder sa place : on quitte l'écran, pas la partie. La ligne players reste,
+        // et l'accueil proposera de reprendre.
+        onKeepSeat={() => router.push("/")}
+        onLeave={async () => {
+          await call("leave_game", {});
+          router.push("/");
+        }}
       />
 
       {error && (

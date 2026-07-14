@@ -4,25 +4,32 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { loadNickname, saveNickname } from "@/lib/game/nickname";
+import { loadProfile, type Profile } from "@/lib/game/profile";
+import { errorMessage } from "@/lib/errors";
 import type { Game } from "@/lib/supabase/types";
 
-/** Une partie en cours où ce téléphone a déjà une place. */
+/** Une partie où ce téléphone a déjà une place. */
 type ActiveGame = { code: string; status: string; round: number };
 
 export default function Home() {
   const router = useRouter();
   const configured = isSupabaseConfigured();
 
-  const [nickname, setNickname] = useState("");
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<ActiveGame | null>(null);
 
   useEffect(() => {
-    // Le pseudo est demandé UNE fois, puis relu à chaque retour sur l'accueil.
-    setNickname(loadNickname());
+    // Pas de profil = premier lancement : on le crée avant toute chose. Le pseudo
+    // ne sera plus jamais redemandé ensuite.
+    const p = loadProfile();
+    if (!p) {
+      router.replace("/onboarding");
+      return;
+    }
+    setProfile(p);
 
     if (!configured) return;
 
@@ -36,12 +43,12 @@ export default function Home() {
         // existe toujours. Sans ce rappel, il faudrait retaper un code de room
         // qu'on n'a peut-être plus sous les yeux.
         //
-        // Le filtre sur user_id est indispensable : la RLS m'autorise à lire TOUS les
+        // Le filtre user_id est indispensable : la RLS m'autorise à lire TOUS les
         // joueurs des parties où je suis (il faut bien voir ses adversaires), donc
-        // sans lui je récupérerais la ligne — et le pseudo — de quelqu'un d'autre.
+        // sans lui je récupérerais la ligne d'un autre.
         const { data } = await supabase
           .from("players")
-          .select("nickname, games(code, status, round)")
+          .select("games(code, status, round)")
           .eq("user_id", session.user.id)
           .order("joined_at", { ascending: false })
           .limit(1)
@@ -49,21 +56,14 @@ export default function Home() {
 
         const game = (data as { games?: ActiveGame } | null)?.games;
         if (game && game.status !== "finished") setActive(game);
-
-        const saved = (data as { nickname?: string } | null)?.nickname;
-        if (saved) {
-          setNickname(saved);
-          saveNickname(saved);
-        }
       } catch {
         // Pas de session, pas de partie en cours : l'accueil normal suffit.
       }
     })();
-  }, [configured]);
+  }, [configured, router]);
 
   async function run(action: "create" | "join") {
-    const name = nickname.trim();
-    if (!name) return setError("Choisis un pseudo d'abord.");
+    if (!profile) return;
     if (action === "join" && !code.trim()) return setError("Entre le code de la partie.");
 
     setBusy(action);
@@ -71,37 +71,35 @@ export default function Home() {
 
     try {
       await ensureAnonymousSession();
-      saveNickname(name);
       const supabase = getSupabaseBrowserClient();
 
       const { data, error: rpcError } =
         action === "create"
-          ? await supabase.rpc("create_game", { p_nickname: name })
+          ? await supabase.rpc("create_game", { p_nickname: profile.nickname })
           : await supabase.rpc("join_game", {
               p_code: code.trim().toUpperCase(),
-              p_nickname: name,
+              p_nickname: profile.nickname,
             });
 
       if (rpcError) throw rpcError;
 
       const game = data as unknown as Game;
+
+      // L'avatar est une colonne que le joueur a le droit d'écrire (grant update),
+      // contrairement au score ou à l'élimination.
+      await supabase
+        .from("players")
+        .update({ avatar: profile.avatar })
+        .eq("game_id", game.id);
+
       router.push(`/room/${game.code}`);
     } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-
-      // Les erreurs Postgres remontent telles quelles : on les traduit.
-      setError(
-        message.includes("game not found")
-          ? "Aucune partie avec ce code."
-          : message.includes("already started")
-            ? "Cette partie a déjà commencé."
-            : message.includes("Anonymous sign-ins are disabled")
-              ? "Active les sessions anonymes dans Supabase (Auth > Providers)."
-              : message,
-      );
+      setError(errorMessage(e));
       setBusy(null);
     }
   }
+
+  if (!profile) return null; // redirection vers /onboarding en cours
 
   return (
     <main className="screen flex min-h-dvh flex-col items-center justify-center gap-6 py-10 text-center">
@@ -115,14 +113,31 @@ export default function Home() {
       {!configured && (
         <div className="w-full rounded-lg bg-error-container p-4 text-left text-body-md text-on-error-container">
           <span className="font-bold">Supabase n&apos;est pas configuré.</span> Renseigne{" "}
-          <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans{" "}
-          <code>.env.local</code>, applique les migrations, puis relance{" "}
+          <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+          dans <code>.env.local</code>, applique les migrations, puis relance{" "}
           <code>npm run dev</code>.
         </div>
       )}
 
-      {/* Une place est toujours ouverte quelque part : on y ramène en un geste plutôt
-          que de faire retaper un code de room. */}
+      {/* Le pseudo est saisi une fois, à l'onboarding. Ici on ne fait que le rappeler. */}
+      <button
+        type="button"
+        onClick={() => router.push("/onboarding")}
+        className="flex w-full items-center gap-3 rounded-lg bg-white p-3 text-left shadow-card active:scale-[0.99]"
+      >
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-[24px]">
+          {profile.avatar}
+        </span>
+        <span className="flex-1">
+          <span className="block text-body-lg font-bold">{profile.nickname}</span>
+          <span className="block text-label-md text-on-surface-variant">
+            Modifier mon profil
+          </span>
+        </span>
+        <span className="material-symbols-outlined text-on-surface-variant">edit</span>
+      </button>
+
+      {/* Une place reste ouverte : on y ramène en un geste. */}
       {active && (
         <button
           type="button"
@@ -142,14 +157,6 @@ export default function Home() {
           </p>
         </button>
       )}
-
-      <input
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        maxLength={24}
-        placeholder="Ton pseudo"
-        className="w-full border-b-4 border-tile bg-transparent py-3 text-center text-headline-md outline-none transition-colors focus:border-accent"
-      />
 
       <button
         type="button"

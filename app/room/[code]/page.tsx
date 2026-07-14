@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
+import { errorMessage } from "@/lib/errors";
 import { CountryPicker } from "@/components/game/CountryPicker";
 import type { Country } from "@/lib/game/types";
 
@@ -46,7 +47,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           setPicking(mine.data as string);
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(errorMessage(e));
       }
     })();
   }, [code]);
@@ -62,7 +63,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
   async function pickCountry(name: string) {
     const { error: e } = await supabase.rpc("pick_country", { p_country: name });
-    if (e) return setError(e.message);
+    if (e) return setError(errorMessage(e));
     setMyCountry(name);
     setError(null);
   }
@@ -77,7 +78,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   async function startGame() {
     if (!game) return;
     const { error: e } = await supabase.rpc("start_game", { p_game_id: game.id });
-    if (e) setError(e.message);
+    if (e) setError(errorMessage(e));
   }
 
   // Tous les téléphones basculent ensemble : c'est le `status` en base qui déclenche
