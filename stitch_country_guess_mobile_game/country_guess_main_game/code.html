@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Country Guess - Round 3/5</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .game-tile-shadow {
+            box-shadow: 0 4px 0 0 #D1D8DB;
+        }
+        
+        .active-press:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .primary-button-3d {
+            box-shadow: 0 4px 0 0 #4029ba;
+        }
+        
+        .primary-button-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 0 #4029ba;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#6c5ce7",
+                        "secondary-fixed-dim": "#4bddb7",
+                        "on-tertiary-fixed-variant": "#8c1520",
+                        "inverse-on-surface": "#ebf2f5",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#e4dfff",
+                        "on-tertiary-fixed": "#410006",
+                        "surface-variant": "#dde4e7",
+                        "inverse-primary": "#c6bfff",
+                        "surface-dim": "#d4dbde",
+                        "on-secondary-fixed-variant": "#005140",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#00725b",
+                        "tertiary-fixed-dim": "#ffb3b0",
+                        "surface": "#f4fafd",
+                        "on-primary-fixed-variant": "#4029ba",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#c84245",
+                        "on-primary-container": "#faf6ff",
+                        "surface-container-highest": "#dde4e7",
+                        "surface-container-low": "#eef5f8",
+                        "on-surface": "#161d1f",
+                        "tertiary": "#a62a30",
+                        "error": "#ba1a1a",
+                        "secondary": "#006b55",
+                        "on-surface-variant": "#474554",
+                        "primary-fixed-dim": "#c6bfff",
+                        "background": "#f4fafd",
+                        "on-secondary-fixed": "#002018",
+                        "surface-tint": "#5847d2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e9ec",
+                        "on-primary-fixed": "#160066",
+                        "surface-bright": "#f4fafd",
+                        "surface-container": "#e8eff2",
+                        "outline": "#787586",
+                        "primary": "#5341cd",
+                        "on-tertiary-container": "#fff5f4",
+                        "secondary-fixed": "#6dfad2",
+                        "on-background": "#161d1f",
+                        "inverse-surface": "#2a3234",
+                        "tertiary-fixed": "#ffdad8",
+                        "secondary-container": "#6dfad2",
+                        "outline-variant": "#c8c4d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "lg": "32px",
+                        "md": "20px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xl": "48px",
+                        "container-max": "600px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-[#FAFAF8] text-on-surface font-body-md selection:bg-primary-container selection:text-white">
+<!-- Top Bar Component -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface shadow-sm">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-colors">arrow_back</span>
+<span class="font-label-lg text-label-lg text-primary">#XJ82</span>
+</div>
+<h1 class="font-headline-md text-headline-md-mobile text-primary dark:text-primary-container">Round 3/5</h1>
+<div class="w-10"></div> <!-- Spacer for centering headline -->
+</div>
+</header>
+<main class="pt-20 pb-32 max-w-container-max mx-auto px-gutter min-h-screen flex flex-col gap-6">
+<!-- Turn Banner -->
+<section class="animate-in fade-in slide-in-from-top-4 duration-700">
+<div class="bg-primary-container rounded-2xl py-4 px-6 flex justify-center items-center shadow-lg border-b-4 border-[#4029ba]">
+<span class="font-headline-md text-headline-md-mobile text-white text-center">🎯 Marie's turn</span>
+</div>
+</section>
+<!-- Player Row -->
+<section class="flex flex-col gap-3">
+<h3 class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest ml-1">Players</h3>
+<div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+<!-- Player Card 1 (Marie - Active) -->
+<div class="flex-shrink-0 w-32 bg-white rounded-2xl p-3 border-4 border-primary shadow-lg flex flex-col items-center gap-2 transition-transform hover:scale-105">
+<div class="relative">
+<img class="w-14 h-14 rounded-full border-2 border-primary-container object-cover" data-alt="A high-quality 3D avatar of a friendly woman with orange glasses and a bun, styled in a clean, modern edutainment aesthetic. The lighting is soft and cheerful against a vibrant teal background. Professional digital character design with tactile textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmCxEWvFPk53_w_CWT7q9mZXIQsYtRqjS2jP0J4KHL2NyTuberYfzd0tJi-NZGInrhZFbdh5-wYuVVrEbGew76PdclLGCHBUMbL_qiaNHOlUmLhbGfwnWM6g8jAHYTKKPgfNGHQklcfkBYq9q-OnALE9Vt-SJQUxglRCL9VTN7mLo1FKFr395I5yw4Le-YDT_3CxlPhHLhpjZUfnEqbXCOJQ61pEOuYz3vdVadD7qhz8wzw75kfZiX"/>
+<div class="absolute -bottom-1 -right-1 bg-primary text-white p-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</div>
+</div>
+<span class="font-label-lg text-label-lg truncate">Marie</span>
+<span class="font-label-md text-label-md bg-primary-fixed text-on-primary-fixed px-2 py-0.5 rounded-full">6 letters left</span>
+</div>
+<!-- Player Card 2 (Yao) -->
+<div class="flex-shrink-0 w-32 bg-white rounded-2xl p-3 shadow-md flex flex-col items-center gap-2 transition-transform hover:scale-105 border-4 border-transparent">
+<img class="w-14 h-14 rounded-full object-cover" data-alt="A stylish 3D character portrait of a young man with a bright smile, short black hair, wearing a casual yellow hoodie. The art style is polished, minimalist, and gaming-oriented with smooth gradients. Soft studio lighting on a warm beige background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd6CB6MkhtHaYr80V7l7kPnY2IZRUFkPwGmzCpJy4bZoEZrdGHynnmAL5uA4nIW6NuTPPLzo3pl4M6qVralYpZ9OYosje8P0hDkfG_WanxCplGFiZfYVdZauWjHRr0kPlB88gRi-7ZxMY8EIdx6nAdkVFV3e1iJASamKgSqnM35oU8CTnhi8nuims-RMFkwmMUn4ZxOSdHmuAQA462E8G-_slPEAFcg0bJsMqJi6pbDutXTSeBnILq"/>
+<span class="font-label-lg text-label-lg truncate">Yao</span>
+<span class="font-label-md text-label-md bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full">6 letters left</span>
+</div>
+<!-- Player Card 3 (You) -->
+<div class="flex-shrink-0 w-32 bg-white rounded-2xl p-3 shadow-md flex flex-col items-center gap-2 transition-transform hover:scale-105 border-4 border-transparent">
+<img class="w-14 h-14 rounded-full object-cover" data-alt="A minimalist 3D avatar representing the user, showing a playful person with a blue cap and a neutral expression, high-end mobile game art style. Clean lines, soft shadows, and vibrant colors. Centered on a soft lavender background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK2tCC69H5okOwrXNP4_Ut4ZIGh4-AAmBR5qwveHc_PMhmWb2H6S9w7xc_ddnqpuLuxL2UHPXyX2WVljUvrgFrdtVbh37leEzpwcS-KmBQxZh91qwpXpAMF0s8qe__yxwsOPg4YfVziWpDS2QqBUx_nZFwLzIdU9EXrsa7696D9KAfgHfqZn47sNOGkV65IdCGX-gE8nLi0c_ubFQ3AVVZ_H3XfUnUFO2gtrVRWB8eO-loSdb6rjcS"/>
+<span class="font-label-lg text-label-lg truncate">You</span>
+<span class="font-label-md text-label-md bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full">6 letters left</span>
+</div>
+</div>
+</section>
+<!-- Your Country Section -->
+<section class="bg-white rounded-2xl p-6 shadow-md border-b-2 border-surface-container-highest">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">Your country</h3>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-3 py-1 rounded-full">South America</span>
+</div>
+<div class="flex justify-center gap-2 sm:gap-3">
+<!-- B -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-white border-2 border-surface-variant rounded-xl flex items-center justify-center font-headline-lg text-headline-lg-mobile sm:text-headline-lg game-tile-shadow">B</div>
+<!-- R -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-white border-2 border-surface-variant rounded-xl flex items-center justify-center font-headline-lg text-headline-lg-mobile sm:text-headline-lg game-tile-shadow">R</div>
+<!-- A -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-white border-2 border-surface-variant rounded-xl flex items-center justify-center font-headline-lg text-headline-lg-mobile sm:text-headline-lg game-tile-shadow">A</div>
+<!-- Z (Hidden) -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-[#DFE6E9] rounded-xl flex items-center justify-center game-tile-shadow"></div>
+<!-- I (Hidden) -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-[#DFE6E9] rounded-xl flex items-center justify-center game-tile-shadow"></div>
+<!-- L (Hidden) -->
+<div class="w-12 h-14 sm:w-16 sm:h-20 bg-[#DFE6E9] rounded-xl flex items-center justify-center game-tile-shadow"></div>
+</div>
+</section>
+<!-- Last Action Card -->
+<section class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
+<div class="bg-surface-container-low rounded-2xl p-4 flex items-start gap-4 border border-outline-variant/30">
+<div class="p-2 bg-white rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-tertiary">history</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase mb-0.5">Last Action</span>
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-bold">Yao</span> asked you for <span class="text-primary font-bold">'E'</span> → <span class="text-tertiary font-bold">Not found</span>
+</p>
+</div>
+</div>
+</section>
+<!-- Map Clue Card (Bonus Content for UI depth) -->
+<section class="relative h-48 rounded-2xl overflow-hidden shadow-md group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A stylized vector map of Brazil with vibrant green and yellow tones, focusing on the geographical shape. The illustration is clean, modern, and minimalist, with soft shadows and a playful edutainment feel. The background is a soft blue representing the ocean. High-end game UI asset style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAqiDc5esw8zm_xO8D8uUOhMz0Uqk6xo589QbsoNLSlIBPfgZNHD3xATRqnVhSjkH5fBt5PaiUvW5em5m40GsUm5pOfkac1KsYu-gFnC_qALzuYPNn_NOs927VYrT2o-CZE1KCQh3BEkUh4O0JPxRYa2MYPW9TU9arzUWR3n3sohYjv4TQkpJxRf1Wf1JI4RdPVY7xwrpjioI2J7CudkaajkScfHfy8lN2ZLbJRYA0K8iKrNoZyvm5Q')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="font-label-lg text-label-lg block opacity-80">Current Goal</span>
+<span class="font-headline-md text-headline-md-mobile">Identify Brazil</span>
+</div>
+</section>
+</main>
+<!-- Bottom Action Zone (Fixed Navigation) -->
+<nav class="fixed bottom-0 left-0 w-full bg-surface py-4 pb-8 px-gutter shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.05)] z-50">
+<div class="max-w-container-max mx-auto flex gap-4">
+<!-- Ask a letter -->
+<button class="flex-1 bg-primary-container text-white py-4 px-6 rounded-full font-label-lg text-label-lg flex items-center justify-center gap-2 primary-button-3d transition-all">
+<span class="material-symbols-outlined">contact_support</span>
+                Ask a letter
+            </button>
+<!-- Guess the country -->
+<button class="flex-1 bg-white border-2 border-primary text-primary py-4 px-6 rounded-full font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-primary-container/5 active:scale-95 transition-all">
+<span class="material-symbols-outlined">public</span>
+                Guess the country
+            </button>
+</div>
+</nav>
+<!-- Bottom Navigation Component (Shared Component Reference) -->
+<!-- Note: BottomNavBar is suppressed on this task-focused screen as per UX guidelines to prioritize game controls -->
+<script>
+        // Micro-interactions for game tiles
+        document.querySelectorAll('.game-tile-shadow').forEach(tile => {
+            tile.addEventListener('click', () => {
+                tile.classList.add('scale-110', 'rotate-2');
+                setTimeout(() => {
+                    tile.classList.remove('scale-110', 'rotate-2');
+                }, 200);
+            });
+        });
+
+        // Simple haptic-like animation for buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.transform = 'scale(0.98)';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Player Profile | WorldGuess</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#c84245",
+                    "on-secondary-container": "#00725b",
+                    "inverse-on-surface": "#ebf2f5",
+                    "surface-variant": "#dde4e7",
+                    "secondary": "#006b55",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "primary-fixed": "#e4dfff",
+                    "surface-dim": "#d4dbde",
+                    "secondary-fixed": "#6dfad2",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdad8",
+                    "surface-container-highest": "#dde4e7",
+                    "primary-fixed-dim": "#c6bfff",
+                    "outline": "#787586",
+                    "on-primary-fixed": "#160066",
+                    "on-primary": "#ffffff",
+                    "primary": "#5341cd",
+                    "primary-container": "#6c5ce7",
+                    "on-tertiary-fixed": "#410006",
+                    "secondary-container": "#6dfad2",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005140",
+                    "tertiary": "#a62a30",
+                    "outline-variant": "#c8c4d7",
+                    "surface-container-low": "#eef5f8",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#474554",
+                    "on-background": "#161d1f",
+                    "secondary-fixed-dim": "#4bddb7",
+                    "on-secondary-fixed": "#002018",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#5847d2",
+                    "on-surface": "#161d1f",
+                    "inverse-primary": "#c6bfff",
+                    "inverse-surface": "#2a3234",
+                    "surface-container-high": "#e2e9ec",
+                    "tertiary-fixed-dim": "#ffb3b0",
+                    "surface-container": "#e8eff2",
+                    "surface": "#f4fafd",
+                    "surface-bright": "#f4fafd",
+                    "background": "#f4fafd",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#8c1520",
+                    "on-primary-container": "#faf6ff",
+                    "on-tertiary-container": "#fff5f4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "20px",
+                    "base": "8px",
+                    "gutter": "16px",
+                    "sm": "12px",
+                    "xl": "48px",
+                    "lg": "32px",
+                    "xs": "4px",
+                    "container-max": "600px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4fafd; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .stat-card { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .stat-card:active { transform: scale(0.95) translateY(2px); }
+        .progress-bar-fill { transition: width 1s ease-in-out; }
+        .badge-scroll::-webkit-scrollbar { display: none; }
+        .custom-3d-button { box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1); transition: all 0.1s; }
+        .custom-3d-button:active { transform: translateY(2px); box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm h-16 flex items-center justify-between px-gutter max-w-container-max mx-auto left-0 right-0">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-200 active:translate-y-[2px]">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Round 3/5</h1>
+</div>
+<div class="flex items-center">
+<span class="font-label-lg text-label-lg text-on-surface-variant px-3 py-1 bg-surface-container rounded-full">#XJ82</span>
+</div>
+</header>
+<main class="pt-20 pb-28 px-gutter max-w-container-max mx-auto">
+<!-- Header Profile Section -->
+<section class="flex flex-col items-center mb-lg">
+<div class="relative mb-md group">
+<div class="w-32 h-32 rounded-full border-4 border-primary-container p-1 bg-surface-container-lowest shadow-lg overflow-hidden transition-transform group-hover:scale-105 duration-300">
+<img class="w-full h-full object-cover rounded-full" data-alt="A stylish 3D avatar portrait of a young gamer named Alex, with vibrant purple hair and modern headphones, set against a clean studio background with soft purple and coral neon accents. The lighting is bright and cheerful, matching a premium mobile game aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDckqsgwWiIFb9x7rUL79UddSjnosozs9f2j5lPhhYLAWMvUGwMw_dhVwilZqeTbngE4JhvJLPXlyeAbnZTXlNKNp79nDNgtIRqXD8560VsbhnFvxP8xvgXk0-Mo5hfv7JIbfIK_QHC-J_9HeZKf9vBapmOwYgOKNdCx2qi-PRsEOgFQ_l8theaTxXvKy_jACOwcz8AGnsRNreWPA2YNIm4vav7dSXxYovxB-YsAJp0BdUC9HGkx-cs"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-md font-label-md shadow-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+                    Globetrotter
+                </div>
+</div>
+<div class="text-center">
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-surface mb-xs">AlexGamer</h2>
+<div class="flex items-center justify-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-headline-md">12,450 pts</span>
+</div>
+</div>
+</section>
+<!-- Level Progression -->
+<section class="bg-surface-container-lowest p-md rounded-xl shadow-sm mb-lg border border-surface-variant">
+<div class="flex justify-between items-end mb-sm">
+<div>
+<p class="font-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Current Progress</p>
+<h3 class="font-headline-md text-primary">Level 14</h3>
+</div>
+<p class="font-label-md text-on-surface-variant">550 / 1000 XP</p>
+</div>
+<div class="h-4 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="progress-bar-fill h-full bg-primary-container rounded-full" style="width: 55%"></div>
+</div>
+<p class="mt-sm text-center font-body-md text-on-surface-variant text-sm">
+                Win 2 more games to reach <span class="text-primary font-bold">Level 15</span>
+</p>
+</section>
+<!-- Statistics Bento Grid -->
+<section class="grid grid-cols-2 gap-md mb-lg">
+<div class="stat-card bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-variant flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-tertiary mb-base text-3xl">emoji_events</span>
+<span class="font-headline-md text-on-surface">42</span>
+<span class="font-label-md text-on-surface-variant">Total Wins</span>
+</div>
+<div class="stat-card bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-variant flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-secondary mb-base text-3xl">public</span>
+<span class="font-headline-md text-on-surface">118</span>
+<span class="font-label-md text-on-surface-variant">Discovered</span>
+</div>
+<div class="stat-card bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-variant flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-base text-3xl">target</span>
+<span class="font-headline-md text-on-surface">88%</span>
+<span class="font-label-md text-on-surface-variant">Accuracy</span>
+</div>
+<div class="stat-card bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-variant flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-on-surface-variant mb-base text-3xl">query_stats</span>
+<span class="font-headline-md text-on-surface">2.4</span>
+<span class="font-label-md text-on-surface-variant">Avg Guesses</span>
+</div>
+</section>
+<!-- Recent Achievements -->
+<section class="mb-lg">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-md text-on-surface">Achievements</h3>
+<button class="text-primary font-label-lg hover:underline transition-all">View All</button>
+</div>
+<div class="badge-scroll flex gap-md overflow-x-auto pb-xs">
+<div class="flex-shrink-0 flex flex-col items-center w-24">
+<div class="w-16 h-16 bg-tertiary-container rounded-full flex items-center justify-center mb-base shadow-md border-2 border-on-tertiary-container">
+<span class="material-symbols-outlined text-on-tertiary text-3xl" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<span class="font-label-md text-center leading-tight">First Win</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center w-24">
+<div class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center mb-base shadow-md border-2 border-on-secondary-container">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="font-label-md text-center leading-tight">5-Streak</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center w-24">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mb-base shadow-md border-2 border-on-primary-container">
+<span class="material-symbols-outlined text-on-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+</div>
+<span class="font-label-md text-center leading-tight">Map Master</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center w-24">
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-base border-2 border-dashed border-outline">
+<span class="material-symbols-outlined text-outline text-3xl">lock</span>
+</div>
+<span class="font-label-md text-center leading-tight text-outline">Pro Badge</span>
+</div>
+</div>
+</section>
+<!-- Actions -->
+<section class="flex flex-col gap-base mt-lg">
+<button class="custom-3d-button w-full bg-primary-container text-on-primary-container h-14 rounded-xl font-headline-md flex items-center justify-center gap-2 border-b-[4px] border-primary active:translate-y-[2px] active:border-b-0">
+<span class="material-symbols-outlined">edit</span>
+                Edit Profile
+            </button>
+<button class="w-full bg-transparent border-2 border-primary-container text-primary h-14 rounded-xl font-headline-md flex items-center justify-center gap-2 hover:bg-primary-container/5 transition-colors duration-200 active:scale-95">
+<span class="material-symbols-outlined">group</span>
+                View Friends
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter py-2 pb-safe bg-surface z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">videogame_asset</span>
+<span class="font-label-md text-label-md">Game</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Players</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-md text-label-md">Chat</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 hover:opacity-80 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple micro-interaction for the progress bar
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const bar = document.querySelector('.progress-bar-fill');
+                bar.style.width = '55%';
+            }, 300);
+        });
+
+        // Add haptic-like feel to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(5);
+                }
+            });
+        });
+    </script>
+</body></html>

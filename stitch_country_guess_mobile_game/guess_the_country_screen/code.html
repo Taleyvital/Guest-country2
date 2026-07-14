@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Guess the Country - Round 3/5</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f4fafd",
+                    "primary-fixed": "#e4dfff",
+                    "on-secondary-fixed": "#002018",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#6dfad2",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#faf6ff",
+                    "surface-container-low": "#eef5f8",
+                    "outline": "#787586",
+                    "primary-fixed-dim": "#c6bfff",
+                    "surface": "#f4fafd",
+                    "on-secondary-container": "#00725b",
+                    "tertiary-fixed": "#ffdad8",
+                    "primary": "#5341cd",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#8c1520",
+                    "inverse-primary": "#c6bfff",
+                    "on-background": "#161d1f",
+                    "surface-variant": "#dde4e7",
+                    "surface-container-highest": "#dde4e7",
+                    "secondary-fixed": "#6dfad2",
+                    "on-tertiary-container": "#fff5f4",
+                    "on-surface-variant": "#474554",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#2a3234",
+                    "surface-dim": "#d4dbde",
+                    "tertiary-fixed-dim": "#ffb3b0",
+                    "on-primary-fixed": "#160066",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#6c5ce7",
+                    "background": "#f4fafd",
+                    "tertiary-container": "#c84245",
+                    "surface-container": "#e8eff2",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#161d1f",
+                    "inverse-on-surface": "#ebf2f5",
+                    "outline-variant": "#c8c4d7",
+                    "secondary": "#006b55",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "on-tertiary-fixed": "#410006",
+                    "surface-tint": "#5847d2",
+                    "tertiary": "#a62a30",
+                    "surface-container-high": "#e2e9ec",
+                    "secondary-fixed-dim": "#4bddb7",
+                    "on-secondary-fixed-variant": "#005140"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "container-max": "600px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "lg": "32px",
+                    "md": "20px",
+                    "gutter": "16px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FAFAF8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .game-card-shadow {
+            box-shadow: 0 4px 0 0 rgba(0,0,0,0.05);
+        }
+        .primary-btn-3d {
+            box-shadow: 0 4px 0 0 #4029ba;
+        }
+        .primary-btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #4029ba;
+        }
+        .input-focus-ring:focus {
+            outline: none;
+            border-bottom-color: #5341cd;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full active:translate-y-[2px]">
+                    arrow_back
+                </button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Round 3/5</h1>
+</div>
+<span class="font-label-lg text-label-lg text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">#XJ82</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-32 px-gutter w-full max-w-container-max mx-auto flex flex-col gap-md">
+<!-- Game Illustration Placeholder -->
+<div class="w-full aspect-video rounded-xl overflow-hidden shadow-sm relative group mb-2">
+<div class="w-full h-full bg-cover bg-center" data-alt="A stylized, high-energy illustration of a world map with playful 3D icons like airplanes and flags. The color palette features vibrant electric purple, soft coral, and deep emerald green. The lighting is bright and cheerful, matching a modern game-show aesthetic with clean lines and soft ambient occlusion shadows." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByAS50IvenD8NFsbCrndQgR9WrFcw9RvYwvmM0Iz-W3bJX5bAmYadeS4Yn5fJ6OjUZXVBBszX3ZDLeU5PpvDeDPRwTCwKdTv9MMw-VO19fninJK57rjIM3XKGdjNhzpWal9DQ2hx-gtKEVLvtmclOAInPIOxCB1Fe13ulUJYUklKp9KW0hXtR1XCojKzPt23EwrAyfnF16v7dxCwxOi2VeugklJMU7zkoKYcbAjJFtITA6YdpG72TO')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+</div>
+<!-- Section Title -->
+<div class="text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary bg-primary-fixed inline-block px-6 py-2 rounded-full mb-2">
+                Guess the Country
+            </h2>
+</div>
+<!-- Risk Warning Card -->
+<div class="bg-tertiary-fixed text-on-tertiary-fixed-variant p-md rounded-xl flex items-start gap-3 game-card-shadow border-l-4 border-tertiary">
+<span class="material-symbols-outlined shrink-0" style="font-variation-settings: 'FILL' 1;">warning</span>
+<p class="font-body-md text-body-md">
+<strong>Warning:</strong> An incorrect guess will eliminate you from this round! Think carefully.
+            </p>
+</div>
+<!-- Hint Letters Area -->
+<div class="flex flex-col items-center gap-sm mt-4">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Current Clue</p>
+<div class="flex gap-2">
+<!-- Tile Pattern -->
+<div class="w-10 h-12 flex items-center justify-center bg-surface-variant text-on-surface font-headline-md rounded-lg shadow-sm">B</div>
+<div class="w-10 h-12 flex items-center justify-center bg-surface-variant text-on-surface font-headline-md rounded-lg shadow-sm">R</div>
+<div class="w-10 h-12 flex items-center justify-center bg-surface-variant text-on-surface font-headline-md rounded-lg shadow-sm">A</div>
+<div class="w-10 h-12 flex items-center justify-center bg-surface-container text-on-surface-variant font-headline-md rounded-lg shadow-sm">_</div>
+<div class="w-10 h-12 flex items-center justify-center bg-surface-container text-on-surface-variant font-headline-md rounded-lg shadow-sm">_</div>
+<div class="w-10 h-12 flex items-center justify-center bg-surface-container text-on-surface-variant font-headline-md rounded-lg shadow-sm">_</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="mt-lg relative">
+<div class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
+<span class="material-symbols-outlined">public</span>
+</div>
+<input class="w-full h-16 pl-12 pr-4 bg-transparent border-b-4 border-surface-variant font-headline-md text-center input-focus-ring transition-all duration-300 placeholder:text-outline-variant placeholder:font-body-lg" placeholder="Enter country name..." type="text"/>
+</div>
+<!-- Submit Button Area -->
+<div class="mt-auto pt-lg">
+<button class="w-full py-5 bg-primary-container text-on-primary-container font-headline-md rounded-xl primary-btn-3d active:translate-y-[2px] transition-all duration-150 flex items-center justify-center gap-2">
+                Submit Guess
+                <span class="material-symbols-outlined">send</span>
+</button>
+<p class="text-center font-label-md text-label-md text-outline mt-4">
+                32 players are still in this round
+            </p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter py-2 pb-safe bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+<!-- Game (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<span class="font-label-md text-label-md">Game</span>
+</a>
+<!-- Players -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Players</span>
+</a>
+<!-- Chat -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-md text-label-md">Chat</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple input animation feedback
+        const input = document.querySelector('input');
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length > 0) {
+                input.classList.remove('border-surface-variant');
+                input.classList.add('border-primary');
+            } else {
+                input.classList.add('border-surface-variant');
+                input.classList.remove('border-primary');
+            }
+        });
+
+        // Tactile button feedback handled by CSS transitions and 'active' state logic
+    </script>
+</body></html>

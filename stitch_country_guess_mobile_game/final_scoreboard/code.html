@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Final Results - Country Guess</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e9ec",
+                        "on-primary-fixed": "#160066",
+                        "surface-bright": "#f4fafd",
+                        "tertiary-container": "#c84245",
+                        "on-primary-container": "#faf6ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#dde4e7",
+                        "tertiary": "#a62a30",
+                        "surface-container-low": "#eef5f8",
+                        "on-surface": "#161d1f",
+                        "error": "#ba1a1a",
+                        "secondary": "#006b55",
+                        "primary-fixed-dim": "#c6bfff",
+                        "on-surface-variant": "#474554",
+                        "background": "#f4fafd",
+                        "on-secondary-fixed": "#002018",
+                        "surface-tint": "#5847d2",
+                        "primary": "#5341cd",
+                        "on-tertiary-container": "#fff5f4",
+                        "secondary-fixed": "#6dfad2",
+                        "on-background": "#161d1f",
+                        "inverse-surface": "#2a3234",
+                        "tertiary-fixed": "#ffdad8",
+                        "secondary-container": "#6dfad2",
+                        "outline-variant": "#c8c4d7",
+                        "surface-container": "#e8eff2",
+                        "outline": "#787586",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#e4dfff",
+                        "on-tertiary-fixed": "#410006",
+                        "surface-variant": "#dde4e7",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#6c5ce7",
+                        "secondary-fixed-dim": "#4bddb7",
+                        "on-tertiary-fixed-variant": "#8c1520",
+                        "inverse-on-surface": "#ebf2f5",
+                        "on-secondary-container": "#00725b",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb3b0",
+                        "surface": "#f4fafd",
+                        "on-primary-fixed-variant": "#4029ba",
+                        "inverse-primary": "#c6bfff",
+                        "surface-dim": "#d4dbde",
+                        "on-secondary-fixed-variant": "#005140",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "32px",
+                        "gutter": "16px",
+                        "xl": "48px",
+                        "container-max": "600px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "20px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .podium-shadow {
+            filter: drop-shadow(0 10px 15px rgba(108, 92, 231, 0.1));
+        }
+        .confetti-canvas {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col items-center overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<button aria-label="Go back" class="material-symbols-outlined text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors active:translate-y-[2px]">
+                    arrow_back
+                </button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Final Results</h1>
+</div>
+<span class="font-label-lg text-label-lg text-primary bg-primary-fixed px-3 py-1 rounded-full">#XJ82</span>
+</div>
+</header>
+<main class="w-full max-w-container-max flex-1 flex flex-col pt-24 pb-32 px-gutter gap-lg relative">
+<!-- Podium Section -->
+<section class="flex items-end justify-center gap-2 mt-4 podium-shadow">
+<!-- 2nd Place -->
+<div class="flex flex-col items-center w-1/3 animate-[bounce_3s_infinite_1.5s]">
+<div class="relative mb-2">
+<div class="w-16 h-16 rounded-full border-4 border-surface-container-highest overflow-hidden shadow-md">
+<img class="w-full h-full object-cover" data-alt="A stylized 3D avatar of a playful gamer girl with turquoise hair and a bright orange headset. The lighting is soft and cheerful, set against a clean pastel background with minimalist geometric shapes, matching the high-energy edutainment game aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-LC87k0cRhU57xRQgUbJaUu2EXpskUxCX8gCy-jQpif1aKmhMk60qgWkxx9HQ8XjTznX2wqJIkhuryoO-GIHdwkYKVSgJLckbCjNXC_nMCZaOXw0mmVVrJgNQCrHUs5Ei4h-8mNsPIU76ezpK-JS48vM_NLsln2R_CXF-ZhYsho7zJcgyxieE-fff-3XAxsyh5dsNzY0cJGK0Xba8aE0EId4hvQQsS1f-m-YXPoDDiqevgnS-iBGK"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-surface-container-highest text-on-surface-variant w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">2</div>
+</div>
+<div class="bg-white w-full rounded-t-xl h-24 flex flex-col items-center justify-center p-2 text-center shadow-sm">
+<p class="font-label-lg text-xs truncate w-full">Marie</p>
+<p class="font-bold text-primary text-sm">2,450</p>
+</div>
+</div>
+<!-- 1st Place (Center) -->
+<div class="flex flex-col items-center w-2/5 z-20 transform scale-110 -translate-y-4 animate-[bounce_3s_infinite]">
+<div class="relative mb-2">
+<span class="material-symbols-outlined text-yellow-400 absolute -top-8 left-1/2 -translate-x-1/2 text-4xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<div class="w-24 h-24 rounded-full border-4 border-primary overflow-hidden shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A cool digital 3D illustration of a young man with glasses and a stylish beanie, smiling warmly. The art style is clean and rounded with vibrant saturated colors like violet and neon green, optimized for a modern mobile gaming leaderboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU7AbSsKFiqRe_6T6dKw7ij1LqRIC3Y6tgZzwrM313NRb_ExXrBTGpCgDHxj2KUt1OHCdb12i2OaKLGfXoeDzWuulbxfysQV7MuSyrhPJ6cc9OaIEbZf_4YEmShUVMcEqpLktdSlbeBIH-FGq-0tFBHmYm3WIUPFzAwu094r4GtC0Qj8PK2gKlVsRO2ZCzZyG4ZfamGN483wr7LhxElrDUFtSIlONAQMyW16sbgQ9Bq_Z_oCF_qA31"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-extrabold border-2 border-white">1</div>
+</div>
+<div class="bg-primary-container w-full rounded-t-2xl h-36 flex flex-col items-center justify-center p-3 text-center shadow-lg">
+<p class="font-label-lg text-white truncate w-full">AlexGamer</p>
+<p class="font-display-lg text-white text-lg">3,120</p>
+</div>
+</div>
+<!-- 3rd Place -->
+<div class="flex flex-col items-center w-1/3 animate-[bounce_3s_infinite_2s]">
+<div class="relative mb-2">
+<div class="w-16 h-16 rounded-full border-4 border-orange-200 overflow-hidden shadow-md">
+<img class="w-full h-full object-cover" data-alt="A friendly 3D cartoon avatar of a cat wearing a small crown, rendered in a crisp minimalist style. The colors are warm and inviting, using a palette of creams, soft oranges, and whites, fitting perfectly within a celebratory game-show interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF4e59cweHegEbOj1kAROOk25x9wr0o0ZUpkJX8pF5fPry1_lb91R_LRij883ez8IhvYWpI_VqbfHqdV-DMwPOZ4tA1vIbW9QVW-EcesKyPivo6VNP8ZEVSWLVVWearYhIb45lkyL2y2lqZ1p8fEPGYVh8r-8WRwqgSQAR7Be6kYahq8Q8b2fVd0S8CeO8Uyf8pvm_z1s9yDGHBw_2By-rxbwfXlNaxYrR6ayT1qcfiRtRFzusU4K_"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-orange-100 text-on-tertiary-fixed-variant w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">3</div>
+</div>
+<div class="bg-white w-full rounded-t-xl h-16 flex flex-col items-center justify-center p-2 text-center shadow-sm">
+<p class="font-label-lg text-xs truncate w-full">Meow_Master</p>
+<p class="font-bold text-primary text-sm">1,890</p>
+</div>
+</div>
+</section>
+<!-- Ranking List -->
+<section class="flex flex-col gap-sm">
+<h2 class="font-label-lg text-on-surface-variant px-2">FULL RANKING</h2>
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-surface-variant">
+<!-- 4th Place -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<span class="font-bold text-on-surface-variant w-6 text-center">4</span>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A minimalist 3D avatar of an explorer character with a wide-brimmed hat, presented in a clean and cheerful mobile game art style. Soft ambient lighting illuminates the character's friendly expression against a light blue background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvEJJJ-bAYeCIxrxNfyavVzdDh4IA4hvfFYOkaI3yk6a1DD48ukibLAN5GKX6UStyHf4TP1bhCZsehCN0ZXRUP0ErTVzij_ybQ8bBiPQwadnikUJGLqK2tY05NcDuQrzHL0EaOBf8V88FeE7vKIhtd2aKIa4S2r846D70Lt95G_sc1pakulWPWv8YtLnCWyFsi70VV0Drexx01qcWl0LieclLBPgKfGjETcQ40XEUdesc9k1j1WNIH"/>
+</div>
+<span class="font-body-md text-on-surface">Traveler99</span>
+</div>
+<span class="font-bold text-on-surface-variant">1,240 pts</span>
+</div>
+<!-- 5th Place (Highlighted User) -->
+<div class="flex items-center justify-between p-4 bg-primary/5 border-l-4 border-primary">
+<div class="flex items-center gap-md">
+<span class="font-bold text-primary w-6 text-center">5</span>
+<div class="w-10 h-10 rounded-full bg-primary-fixed overflow-hidden ring-2 ring-primary">
+<img class="w-full h-full object-cover" data-alt="A cheerful 3D avatar of the player, depicted as a stylish young woman with pink braided hair and a yellow hoodie. The lighting is bright and modern, creating a tactile and high-quality feel consistent with a premium educational game application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC86_Z1kzDeovlX0SWHUhy70fYYDglrGw7vteMtU07q1r2ZIAs-VkLxfoa95cMxp2TM-p5_j_mqlCt9XosOglOHu5lxCVicPI7tgqK7_-6TZT0g2yaMPJlziYNpKdwwjToDIHHNkXsmP4rzmrvsE-0xnI4uUbWPeXDretOfmWu578TEvVh3LUjFmNau1FGXiRy_PUqIivwprVajYtCcQjhsxFnhTK3m1PgQCq7NwtHaRUREmzdEtl5b"/>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface font-bold">You</span>
+<span class="text-[10px] uppercase tracking-wider text-primary font-bold">Better luck next time!</span>
+</div>
+</div>
+<span class="font-bold text-primary">1,105 pts</span>
+</div>
+<!-- 6th Place -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<span class="font-bold text-on-surface-variant w-6 text-center">6</span>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A cute 3D character avatar of a young boy with curly brown hair and a bright green t-shirt. The aesthetic is clean, polished, and friendly, utilizing a light-mode color scheme with soft shadows and high-key illumination." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1T_6BywIW15uwIDOZdtphqG7sb3IxxvJPp47zpT5g5-oOGvZINjJfWimvUtr42LnkhByLGiwIZer6vN8kAwDmZ99X7Ccp1aEo1GxVZUgB16DupO7ynvDwSFWZfGELX_24XoL_REpXy-6ByrH2UHj-rSKWYN1PbcCnvtU1ZjeokJdsWxlCOz5o3L7bn81rlJAK4INPVYDqeEUuh3CH94mefuHNRSPboL7EO4HSbAKHMqCd5FNkGW7p"/>
+</div>
+<span class="font-body-md text-on-surface">KidGeo</span>
+</div>
+<span class="font-bold text-on-surface-variant">980 pts</span>
+</div>
+<!-- 7th Place -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<span class="font-bold text-on-surface-variant w-6 text-center">7</span>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A vibrant 3D stylized avatar of a professional woman with glasses and a blue blazer. The visual style is modern minimalism with a hint of tactile playfulness, featuring soft ambient occlusion and a cheerful, focused expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2bcv6NTWTWtDzOddzHnqN8L27UWUTvuNWdO1mh1YURm0Tv1q5MoHTNxgcQksR0ZQUDbHiE8JlFjKzg8NOvwIIg1HFXESY9mttXlySD-MqTnRA0A2epF3910yKPWawJuasia4DO3dZ5FdG-PQGgT2ya1EXAGRFc2cwt6_qOsqIS0EPAoU1nyvE_qDbRV7xt5fN_AvVcU-m_6CQHzeIFS6smNtHfS7oH33cZLf9o2MjSlUjsI3ydk6H"/>
+</div>
+<span class="font-body-md text-on-surface">Sarah_Maps</span>
+</div>
+<span class="font-bold text-on-surface-variant">720 pts</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Action Zone -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center items-center px-gutter py-md pb-safe bg-surface/80 backdrop-blur-md z-50">
+<div class="flex gap-md w-full max-w-container-max">
+<button class="flex-1 bg-primary text-white font-bold h-14 rounded-full shadow-[0_4px_0_0_#4029ba] active:translate-y-[2px] active:shadow-none transition-all duration-150 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">replay</span>
+                Play Again
+            </button>
+<button class="flex-1 bg-white border-2 border-primary text-primary font-bold h-14 rounded-full active:translate-y-[2px] transition-all duration-150 flex items-center justify-center gap-2 hover:bg-surface-container-low">
+<span class="material-symbols-outlined">meeting_room</span>
+                Lobby
+            </button>
+</div>
+</div>
+<!-- Background Atmospheric Effect (Canvas for JS particles) -->
+<canvas class="confetti-canvas" id="confetti"></canvas>
+<script>
+        // Simple micro-interaction: Confetti celebration on load
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.size = Math.random() * 8 + 4;
+                this.color = ['#6C5CE7', '#5847D2', '#00B894', '#FF6B6B', '#FFD93D'][Math.floor(Math.random() * 5)];
+                this.speed = Math.random() * 3 + 2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotation = Math.random() * 0.2 - 0.1;
+            }
+            update() {
+                this.y += this.speed;
+                this.angle += this.rotation;
+                this.x += Math.sin(this.angle) * 1;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    particles.push(new Particle());
+                }, i * 20);
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.y > canvas.height) particles.splice(index, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        init();
+        animate();
+
+        // Loop confetti every 10 seconds for fun
+        setInterval(init, 10000);
+    </script>
+</body></html>

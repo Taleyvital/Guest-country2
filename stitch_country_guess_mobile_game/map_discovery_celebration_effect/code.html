@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Map Discovery - Country Quest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-tertiary-fixed": "#410006",
+                "surface-tint": "#5847d2",
+                "surface-bright": "#f4fafd",
+                "primary-container": "#6c5ce7",
+                "on-secondary-fixed": "#002018",
+                "error-container": "#ffdad6",
+                "on-secondary-fixed-variant": "#005140",
+                "inverse-primary": "#c6bfff",
+                "surface-container-high": "#e2e9ec",
+                "on-secondary-container": "#00725b",
+                "inverse-surface": "#2a3234",
+                "surface-container-low": "#eef5f8",
+                "background": "#f4fafd",
+                "on-error-container": "#93000a",
+                "surface": "#f4fafd",
+                "outline": "#787586",
+                "surface-variant": "#dde4e7",
+                "primary": "#5341cd",
+                "secondary": "#006b55",
+                "on-primary-container": "#faf6ff",
+                "on-primary": "#ffffff",
+                "tertiary-fixed": "#ffdad8",
+                "surface-dim": "#d4dbde",
+                "secondary-fixed-dim": "#4bddb7",
+                "primary-fixed-dim": "#c6bfff",
+                "on-surface-variant": "#474554",
+                "primary-fixed": "#e4dfff",
+                "on-tertiary": "#ffffff",
+                "surface-container-highest": "#dde4e7",
+                "outline-variant": "#c8c4d7",
+                "inverse-on-surface": "#ebf2f5",
+                "on-tertiary-container": "#fff5f4",
+                "tertiary-fixed-dim": "#ffb3b0",
+                "surface-container-lowest": "#ffffff",
+                "surface-container": "#e8eff2",
+                "secondary-container": "#6dfad2",
+                "tertiary-container": "#c84245",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#6dfad2",
+                "on-primary-fixed": "#160066",
+                "on-background": "#161d1f",
+                "tertiary": "#a62a30",
+                "on-tertiary-fixed-variant": "#8c1520",
+                "on-secondary": "#ffffff",
+                "error": "#ba1a1a",
+                "on-primary-fixed-variant": "#4029ba",
+                "on-surface": "#161d1f"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "2xl": "1rem",
+                "3xl": "1.5rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "container-max": "600px",
+                "xl": "48px",
+                "xs": "4px",
+                "md": "20px",
+                "gutter": "16px",
+                "sm": "12px",
+                "lg": "32px",
+                "base": "8px"
+            },
+            "fontFamily": {
+                "display-lg": ["Plus Jakarta Sans"],
+                "body-md": ["Plus Jakarta Sans"],
+                "headline-md": ["Plus Jakarta Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "label-md": ["Plus Jakarta Sans"],
+                "body-lg": ["Plus Jakarta Sans"],
+                "label-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .btn-3d {
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .custom-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .card-entrance {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Confetti Particle Container */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .confetti-particle {
+            position: absolute;
+            will-change: transform, opacity;
+        }
+
+        /* Accessibility: respect user preference for reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .animate-float, 
+            .card-entrance,
+            .hover\:scale-105 {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+            #confetti-container {
+                display: none !important;
+            }
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-32">
+<!-- Particle Container -->
+<div id="confetti-container"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm h-16 flex items-center justify-center">
+<div class="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-200 active:translate-y-[2px]">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Round 3/5</h1>
+<div class="font-label-lg text-label-lg text-primary bg-primary-fixed px-3 py-1 rounded-full">#XJ82</div>
+</div>
+</header>
+<main class="pt-20 px-gutter max-w-container-max mx-auto">
+<!-- Progress Section -->
+<section class="mb-8">
+<div class="flex justify-between items-end mb-3">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Discovery Log</h2>
+<p class="font-label-md text-on-surface-variant">Global Explorer Status</p>
+</div>
+<div class="text-right">
+<span class="font-display-lg text-headline-lg text-primary">118</span>
+<span class="font-headline-md text-outline">/195</span>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="h-4 w-full bg-surface-variant rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-primary-container rounded-full transition-all duration-1000 ease-out" style="width: 60.5%;">
+<div class="w-full h-full opacity-20 bg-[linear-gradient(45deg,rgba(255,255,255,0.4)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.4)_50%,rgba(255,255,255,0.4)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem]"></div>
+</div>
+</div>
+</section>
+<!-- Continent Filter -->
+<div class="flex overflow-x-auto gap-3 pb-6 custom-scrollbar -mx-gutter px-gutter">
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-primary-container bg-primary-container btn-3d whitespace-nowrap">All</button>
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors whitespace-nowrap">Europe</button>
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors whitespace-nowrap">Asia</button>
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors whitespace-nowrap">Americas</button>
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors whitespace-nowrap">Africa</button>
+<button class="flex-none px-6 py-2 rounded-full font-label-lg text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors whitespace-nowrap">Oceania</button>
+</div>
+<!-- Country Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Unlocked Card 1 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border-b-[4px] border-surface-variant flex flex-col items-center text-center group active:scale-95 hover:scale-105 hover:shadow-lg transition-all duration-300 card-entrance" style="animation-delay: 100ms;">
+<div class="w-full aspect-square rounded-2xl bg-surface-container mb-3 overflow-hidden relative">
+<div class="absolute inset-0 bg-secondary-container opacity-20"></div>
+<img class="w-full h-full object-cover animate-float" data-alt="A stylized isometric 3D map illustration of Japan in a vibrant, minimal flat-design style." data-location="Japan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2FM0D6FdE2exxHPtpVxWRZ7DvorBHs7mSfWQCoBWKsN4WX8H-QjducwOR88rjgxX24mwBH1Q05W1NpN-uUOiiXL-28TqoxJ2JKcBYXgcmrkUBZvKUNLowiLlK5Ng2nI-Vqx-til2foMAohvhcjMnmJcNKQUkyz5I26dmdLUDvHfPuKrsAjddIvKHEeRLNSWR9mVosXElpnBXKFk-KaXINATWRQV7otBppwUWiFAoMb04c2D6inazc"/>
+</div>
+<h3 class="font-headline-md text-on-surface mb-1">Japan</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-md">12 Times</span>
+</div>
+</div>
+<!-- Unlocked Card 2 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border-b-[4px] border-surface-variant flex flex-col items-center text-center group active:scale-95 hover:scale-105 hover:shadow-lg transition-all duration-300 card-entrance" style="animation-delay: 200ms;">
+<div class="w-full aspect-square rounded-2xl bg-surface-container mb-3 overflow-hidden relative">
+<div class="absolute inset-0 bg-primary-container opacity-10"></div>
+<img class="w-full h-full object-cover animate-float" data-alt="A stylized minimalist map of Brazil rendered as a sleek 3D asset for a mobile game." data-location="Brazil" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDld_HpDVkgBoOD90FmhJQXQcI0Jfgv43dXUO5Z-Ol3zWdUJt20yICfTp9k-GyIDhk4tlJRJ2D0SQTcbpjbIltlV8e35HFVjFzB4EclKLby2_Xnn9ajteAH_9Hwg0n9jITNO0pIgWDwncMZMHKToRjDTBdSosHv0Xw-QPa_lk0iDoYnQTOR7MOOD50c3zo8d7KDwon0zE7wEw_Y0laX-_Ugrzlc3k8q3hAgPM-rmLo0IvNLVqHvT4SQ" style="animation-delay: 0.5s;"/>
+</div>
+<h3 class="font-headline-md text-on-surface mb-1">Brazil</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+<span class="font-label-md">Oct 24</span>
+</div>
+</div>
+<!-- Locked Card -->
+<div class="bg-surface-container rounded-3xl p-4 flex flex-col items-center text-center opacity-70 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 card-entrance" style="animation-delay: 300ms;">
+<div class="w-full aspect-square rounded-2xl bg-outline-variant/30 mb-3 flex items-center justify-center">
+<span class="material-symbols-outlined text-6xl text-on-surface-variant/40">question_mark</span>
+</div>
+<h3 class="font-headline-md text-on-surface-variant mb-2">???</h3>
+<button class="w-full py-2 px-3 rounded-xl bg-primary-fixed text-on-primary-fixed-variant font-label-lg hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span>
+                    Hint
+                </button>
+</div>
+<!-- Unlocked Card 3 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border-b-[4px] border-surface-variant flex flex-col items-center text-center group active:scale-95 hover:scale-105 hover:shadow-lg transition-all duration-300 card-entrance" style="animation-delay: 400ms;">
+<div class="w-full aspect-square rounded-2xl bg-surface-container mb-3 overflow-hidden relative">
+<div class="absolute inset-0 bg-tertiary-container opacity-10"></div>
+<img class="w-full h-full object-cover animate-float" data-alt="A minimalist, high-end 3D map illustration of Italy." data-location="Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx6r6KUkzNiHzF0BDV3_afPPaTxlZi0bVnBtGafeHW9O1gdadSO8pMhxltVsnhsmj-r6CZRuGOZNrsWIiNmI-MaFB_T_CQO5pUhHSOrTrL6OjfXXSiA7ZpMruypnhZMjG1zSCd5-6QaOWzclL9MtLrZkC3Wa12YLXLLq7SaK6fNWQsaTQu3Vr9XsKsMnh0mDKoJtw5yC1ytORhNHqbpHot3ZNjUaSyYkmFizta_e9rJBjLuRXptq3h" style="animation-delay: 1s;"/>
+</div>
+<h3 class="font-headline-md text-on-surface mb-1">Italy</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-md">8 Times</span>
+</div>
+</div>
+<!-- Locked Card 2 -->
+<div class="bg-surface-container rounded-3xl p-4 flex flex-col items-center text-center opacity-70 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-300 card-entrance" style="animation-delay: 500ms;">
+<div class="w-full aspect-square rounded-2xl bg-outline-variant/30 mb-3 flex items-center justify-center">
+<span class="material-symbols-outlined text-6xl text-on-surface-variant/40">question_mark</span>
+</div>
+<h3 class="font-headline-md text-on-surface-variant mb-2">???</h3>
+<button class="w-full py-2 px-3 rounded-xl bg-primary-fixed text-on-primary-fixed-variant font-label-lg hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span>
+                    Hint
+                </button>
+</div>
+<!-- Unlocked Card 4 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border-b-[4px] border-surface-variant flex flex-col items-center text-center group active:scale-95 hover:scale-105 hover:shadow-lg transition-all duration-300 card-entrance" style="animation-delay: 600ms;">
+<div class="w-full aspect-square rounded-2xl bg-surface-container mb-3 overflow-hidden relative">
+<div class="absolute inset-0 bg-primary-container opacity-10"></div>
+<img class="w-full h-full object-cover animate-float" data-alt="A stylized 3D map of Egypt for a geography game." data-location="Egypt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd2Z5kuGTzJ8LJ72xJM0pe9nlVO37_Dykfm12iZBLAj6-QDkbOSZ_-IHfb17-NeUp7WmDz-qXiooQAdj4oD0UQ1rT-Q6ZKdpgp9tDfQT4yYuYzamv2XYSDzgGP1jiDOmfFu0hkkA-tv1Y8k41r5atu7E8vGo85Dl9Kjm6FiV29dwLazSrO_gMA20XtYyItHZDq6UY5I3tIo4ZHpu3XlHJFh5OG2AORuY7UY60or4uCXiY2EpEc5nCw" style="animation-delay: 1.5s;"/>
+</div>
+<h3 class="font-headline-md text-on-surface mb-1">Egypt</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-md">5 Times</span>
+</div>
+</div>
+</div>
+<!-- Share Progress Button -->
+<div class="mt-10 flex justify-center">
+<button class="bg-primary-container text-on-primary-container font-headline-md px-10 py-4 rounded-3xl flex items-center gap-3 btn-3d transition-all active:scale-95">
+<span class="material-symbols-outlined">share</span>
+                Share Progress
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter py-2 pb-safe bg-surface z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<span class="font-label-md text-label-md">Game</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Players</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-md text-label-md">Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<script>
+        // Filter button toggle
+        const filterButtons = document.querySelectorAll('.flex-none.px-6');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => {
+                    b.classList.remove('bg-primary-container', 'text-on-primary-container', 'btn-3d');
+                    b.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+                });
+                btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+                btn.classList.add('bg-primary-container', 'text-on-primary-container', 'btn-3d');
+            });
+        });
+
+        // Celebration Particle System
+        function createCelebration() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            const container = document.getElementById('confetti-container');
+            const particleCount = 80;
+            const colors = ['#6c5ce7', '#6dfad2', '#ffb3b0', '#c6bfff', '#ffdad8', '#5341cd'];
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2.5; // Slightly above center for better visibility
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'confetti-particle';
+                
+                // Random properties
+                const size = Math.random() * 8 + 6;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 12 + 4;
+                const rotation = Math.random() * 360;
+                const spin = (Math.random() - 0.5) * 10;
+                
+                // Initial styling
+                Object.assign(particle.style, {
+                    width: `${size}px`,
+                    height: `${size * (Math.random() > 0.5 ? 1 : 0.6)}px`, // Rectangles or squares
+                    backgroundColor: color,
+                    borderRadius: Math.random() > 0.8 ? '50%' : '2px',
+                    left: `${centerX}px`,
+                    top: `${centerY}px`,
+                    transform: `rotate(${rotation}deg)`
+                });
+
+                container.appendChild(particle);
+
+                // Animation variables
+                let posX = centerX;
+                let posY = centerY;
+                let velX = Math.cos(angle) * velocity;
+                let velY = Math.sin(angle) * velocity - 5; // Initial upward pop
+                let gravity = 0.25;
+                let drag = 0.98;
+                let opacity = 1;
+                let currentRotation = rotation;
+
+                function animate() {
+                    velX *= drag;
+                    velY += gravity;
+                    velY *= drag;
+                    
+                    posX += velX;
+                    posY += velY;
+                    currentRotation += spin;
+                    opacity -= 0.008;
+
+                    particle.style.transform = `translate3d(${posX - centerX}px, ${posY - centerY}px, 0) rotate(${currentRotation}deg)`;
+                    particle.style.opacity = opacity;
+
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+        }
+
+        // Trigger on load
+        window.addEventListener('load', () => {
+            setTimeout(createCelebration, 300); // Slight delay for initial entry animations to breathe
+        });
+    </script>
+</body></html>

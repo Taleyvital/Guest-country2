@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-canvas text-on-background antialiased;
+  }
+
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+}
+
+@layer components {
+  /* Conteneur "handheld" : mobile-first, centré, max 600px (cf. DESIGN.md) */
+  .screen {
+    @apply mx-auto w-full max-w-container px-4;
+  }
+
+  /* Bouton primaire 3D : il s'enfonce au press */
+  .btn-primary {
+    @apply rounded bg-accent px-6 py-4 font-sans text-body-lg text-on-primary shadow-btn-3d transition-transform active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba];
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Portrait uniquement : le jeu se tient à une main, et le rail de joueurs + les
+   tuiles n'ont pas de mise en page paysage. On invite à pivoter plutôt que de
+   laisser une UI cassée. Ne se déclenche que sur écrans tactiles courts, pour ne
+   pas piéger un desktop (toujours "paysage"). */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  body > *:not(#rotate-device) {
+    display: none !important;
+  }
+  #rotate-device {
+    display: flex !important;
+  }
+}

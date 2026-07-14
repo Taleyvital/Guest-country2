@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Eliminated - Country Guess</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#d4dbde",
+                    "on-secondary-fixed-variant": "#005140",
+                    "inverse-primary": "#c6bfff",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "on-secondary-container": "#00725b",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb3b0",
+                    "surface": "#f4fafd",
+                    "secondary-fixed-dim": "#4bddb7",
+                    "on-tertiary-fixed-variant": "#8c1520",
+                    "inverse-on-surface": "#ebf2f5",
+                    "primary-container": "#6c5ce7",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#dde4e7",
+                    "primary-fixed": "#e4dfff",
+                    "on-tertiary-fixed": "#410006",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "outline": "#787586",
+                    "surface-container": "#e8eff2",
+                    "secondary-container": "#6dfad2",
+                    "outline-variant": "#c8c4d7",
+                    "tertiary-fixed": "#ffdad8",
+                    "inverse-surface": "#2a3234",
+                    "primary": "#5341cd",
+                    "on-tertiary-container": "#fff5f4",
+                    "secondary-fixed": "#6dfad2",
+                    "on-background": "#161d1f",
+                    "on-secondary-fixed": "#002018",
+                    "surface-tint": "#5847d2",
+                    "tertiary": "#a62a30",
+                    "surface-container-low": "#eef5f8",
+                    "on-surface": "#161d1f",
+                    "error": "#ba1a1a",
+                    "secondary": "#006b55",
+                    "primary-fixed-dim": "#c6bfff",
+                    "on-surface-variant": "#474554",
+                    "background": "#f4fafd",
+                    "surface-container-highest": "#dde4e7",
+                    "tertiary-container": "#c84245",
+                    "on-primary-container": "#faf6ff",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f4fafd",
+                    "surface-container-high": "#e2e9ec",
+                    "on-primary-fixed": "#160066",
+                    "surface-container-lowest": "#ffffff",
+                    "elimination-red": "#FF6B6B"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "32px",
+                    "gutter": "16px",
+                    "xl": "48px",
+                    "container-max": "600px",
+                    "base": "8px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "md": "20px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FAFAF8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .pressable {
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pressable:active {
+            transform: translateY(2px);
+        }
+        .primary-button-3d {
+            box-shadow: 0 4px 0 0 #4B3EBF;
+        }
+        .primary-button-3d:active {
+            box-shadow: 0 0px 0 0 #4B3EBF;
+            transform: translateY(4px);
+        }
+        .red-button-3d {
+            box-shadow: 0 4px 0 0 #D64545;
+        }
+        .red-button-3d:active {
+            box-shadow: 0 0px 0 0 #D64545;
+            transform: translateY(4px);
+        }
+        .floating-heart {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm h-16">
+<div class="flex justify-between items-center px-gutter h-full w-full max-w-container-max mx-auto">
+<button class="pressable text-primary">
+<span class="material-symbols-outlined text-[28px]">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Eliminated</h1>
+<span class="font-label-lg text-label-lg text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">#XJ82</span>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="pt-24 pb-32 px-gutter w-full max-w-container-max mx-auto min-h-screen flex flex-col items-center">
+<!-- Hero Section -->
+<section class="flex flex-col items-center text-center mb-md w-full">
+<div class="relative mb-md">
+<div class="absolute inset-0 bg-elimination-red/10 rounded-full blur-2xl scale-150"></div>
+<span class="material-symbols-outlined text-[120px] text-elimination-red floating-heart relative" style="font-variation-settings: 'FILL' 1;">heart_broken</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg mb-xs">Nice try!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[320px]">
+                You guessed <span class="font-bold text-on-surface">"ARGENTINA"</span>, but the country was <span class="font-bold text-on-surface">"BRAZIL"</span>. You've been eliminated from this round.
+            </p>
+</section>
+<!-- Stats Card -->
+<section class="w-full bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 mb-md">
+<h3 class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest mb-md text-center">Round Summary</h3>
+<div class="grid grid-cols-1 gap-sm">
+<div class="flex justify-between items-center p-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">spellcheck</span>
+<span class="font-body-md text-body-md">Letters Revealed</span>
+</div>
+<span class="font-headline-md text-headline-md">3</span>
+</div>
+<div class="flex justify-between items-center p-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">history</span>
+<span class="font-body-md text-body-md">Turns Played</span>
+</div>
+<span class="font-headline-md text-headline-md">5</span>
+</div>
+<div class="flex justify-between items-center p-sm bg-elimination-red/10 rounded-lg">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-elimination-red">trending_down</span>
+<span class="font-body-md text-body-md text-on-surface">Points Lost</span>
+</div>
+<span class="font-headline-md text-headline-md text-elimination-red">-100</span>
+</div>
+</div>
+</section>
+<!-- Spectator Mode CTA -->
+<section class="w-full bg-primary-fixed/30 rounded-xl p-md border-2 border-dashed border-primary/20 mb-xl text-center">
+<div class="mb-xs">
+<span class="material-symbols-outlined text-primary text-[32px]">visibility</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-xs">Stay as a spectator?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">
+                You can still watch the remaining <span class="font-bold text-primary">31 players</span> finish the round.
+            </p>
+<div class="flex flex-col gap-sm">
+<button class="pressable primary-button-3d bg-primary-container text-on-primary-container w-full h-14 rounded-full font-headline-md text-body-lg flex items-center justify-center gap-base">
+                    Spectate Game
+                </button>
+<button class="pressable border-2 border-outline-variant text-on-surface-variant w-full h-14 rounded-full font-headline-md text-body-lg flex items-center justify-center hover:bg-surface-container-low">
+                    Return to Lobby
+                </button>
+</div>
+</section>
+<!-- Fun Hint/Trivia -->
+<div class="w-full text-center opacity-60 px-lg">
+<p class="font-label-md text-label-md">DID YOU KNOW?</p>
+<p class="font-body-md text-body-md italic mt-xs">Brazil is the only country in South America that speaks Portuguese.</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter py-2 pb-safe bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+<!-- Game (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 pressable transition-all duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<span class="font-label-md text-label-md">Game</span>
+</a>
+<!-- Players -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Players</span>
+</a>
+<!-- Chat -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 transition-all relative" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-md text-label-md">Chat</span>
+<div class="absolute top-0 right-1 w-2 h-2 bg-elimination-red rounded-full"></div>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<!-- Interaction Script -->
+<script>
+        document.querySelectorAll('.pressable').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            button.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

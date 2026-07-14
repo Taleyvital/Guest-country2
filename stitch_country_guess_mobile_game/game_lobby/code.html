@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Country Guess - Game Lobby</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e2e9ec",
+                        "inverse-surface": "#2a3234",
+                        "inverse-on-surface": "#ebf2f5",
+                        "secondary": "#006b55",
+                        "surface-container-highest": "#dde4e7",
+                        "primary-fixed": "#e4dfff",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#161d1f",
+                        "on-primary-fixed": "#160066",
+                        "primary": "#5341cd",
+                        "on-secondary-fixed": "#002018",
+                        "on-surface-variant": "#474554",
+                        "primary-fixed-dim": "#c6bfff",
+                        "tertiary-container": "#c84245",
+                        "surface-variant": "#dde4e7",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#00725b",
+                        "tertiary-fixed": "#ffdad8",
+                        "surface-bright": "#f4fafd",
+                        "on-secondary-fixed-variant": "#005140",
+                        "surface-tint": "#5847d2",
+                        "inverse-primary": "#c6bfff",
+                        "outline-variant": "#c8c4d7",
+                        "background": "#f4fafd",
+                        "outline": "#787586",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#4bddb7",
+                        "surface-container": "#e8eff2",
+                        "tertiary": "#a62a30",
+                        "tertiary-fixed-dim": "#ffb3b0",
+                        "secondary-fixed": "#6dfad2",
+                        "surface-container-low": "#eef5f8",
+                        "on-primary-fixed-variant": "#4029ba",
+                        "surface-dim": "#d4dbde",
+                        "on-tertiary-container": "#fff5f4",
+                        "on-tertiary-fixed": "#410006",
+                        "on-primary-container": "#faf6ff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#8c1520",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#6c5ce7",
+                        "on-background": "#161d1f",
+                        "secondary-container": "#6dfad2",
+                        "surface": "#f4fafd",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "600px",
+                        "lg": "32px",
+                        "xl": "48px",
+                        "md": "20px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f4fafd;
+            color: #161d1f;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-shadow-level-1 {
+            shadow-sm;
+        }
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 #4a38cc;
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a38cc;
+        }
+        .player-card-pop {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .player-card-pop:hover {
+            transform: scale(1.05);
+        }
+        .timer-red {
+            animation: pulse-red 1s infinite alternate;
+        }
+        @keyframes pulse-red {
+            from { color: #5341cd; }
+            to { color: #ba1a1a; }
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar Component -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm h-16">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<button class="text-primary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full active:translate-y-[2px] transition-all duration-150">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Waiting for Players...</h1>
+</div>
+<div class="bg-primary-container px-3 py-1 rounded-full">
+<span class="font-label-lg text-on-primary-container">#XJ82</span>
+</div>
+</div>
+</header>
+<main class="flex-1 mt-16 pb-24 overflow-y-auto w-full max-w-container-max mx-auto px-gutter py-md">
+<!-- Urgency Section -->
+<div class="flex justify-between items-center mb-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="schedule">schedule</span>
+<span class="font-headline-md text-primary" id="countdown">Starts in: 0:45</span>
+</div>
+<div class="text-on-surface-variant font-label-md">
+                12 / 20 Players Joined
+            </div>
+</div>
+<!-- Ready Up Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm mb-lg border-2 border-primary-container/20">
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-md text-on-surface">Lobby Status</h2>
+<span class="font-label-lg text-primary">60% Full</span>
+</div>
+<!-- Progress Bar -->
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container transition-all duration-1000 ease-out" id="lobby-progress" style="width: 60%"></div>
+</div>
+<div class="mt-base">
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md py-4 rounded-xl btn-3d active:translate-y-[2px]">
+                        READY UP
+                    </button>
+</div>
+</div>
+</section>
+<!-- Player List Grid -->
+<section>
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-headline-md text-on-surface">Players</h3>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="filter_list">filter_list</span>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<!-- Current Player (Globetrotter style) -->
+<div class="player-card-pop bg-primary-container text-on-primary-container p-sm rounded-xl shadow-sm flex flex-col gap-xs relative overflow-hidden">
+<div class="absolute -right-2 -top-2 opacity-10">
+<span class="material-symbols-outlined text-[64px]" data-icon="public">public</span>
+</div>
+<div class="flex items-center gap-base">
+<div class="w-10 h-10 rounded-full bg-on-primary-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div>
+<p class="font-label-lg truncate">You (Alex)</p>
+<p class="text-[10px] uppercase font-bold tracking-wider">Globetrotter</p>
+</div>
+</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md">Ready</span>
+</div>
+</div>
+<!-- Player 2 -->
+<div class="player-card-pop bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-surface-container-high flex flex-col gap-xs">
+<div class="flex items-center gap-base">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<img class="w-full h-full object-cover rounded-full" data-alt="A stylized digital 3D avatar of a friendly player with a backpack and a travel hat, clean modern illustration style, soft volumetric lighting, vibrant colors on a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSOQgnnfEw0R52EmBlPBYu-de9nXqdQGkMVXMHv5sZFylGfJOKYFO6CNG06_NR9nxKPU293OmWPGBIsJARKQNBojQCHjyu5uB_bcHMj7qozbktGemvL5n50OiHO3dzPEpPPlNUBWmQtK2iJW7hv2VtIbwSimeJa6FntiAQWBf6_JWXJ8O6dJx7pvWhbWcGkp6j-MSf1I69XEv1-BJVoITVdZfcz7c9VsbapwiW-gIdLWzQ_Fry2RBv"/>
+</div>
+<p class="font-label-lg text-on-surface truncate">MapMaster42</p>
+</div>
+<div class="flex items-center gap-1 mt-1 text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md">Ready</span>
+</div>
+</div>
+<!-- Player 3 -->
+<div class="player-card-pop bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-surface-container-high flex flex-col gap-xs opacity-80">
+<div class="flex items-center gap-base">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<img class="w-full h-full object-cover rounded-full" data-alt="A minimalist profile icon of a woman with headphones and glasses, wearing a brightly colored yellow sweater, against a clean blue background, high quality vector art." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB39fNIenRlUNuOo0jkJFRUYyVBsjJk8IMk6Xeneq3d17MX83mJg8385dv6qQA3dX0ksxHLKfBtBcXPEU4VGY4xafyG0Z7BbIo6VEp05ZF537EeEBpI7V0LcWFC_gAeaDNz-h0Ne-eNVcHtDM7WL0P55mLzqBZCex9Vc9XjhcX8KxpKOhqZ2YefYbG52sJ3U9Pq1BO7ECGMlQJADnKMa2NnrMTGEFXPBITMEoMwTe5d7LYJIB265REY"/>
+</div>
+<p class="font-label-lg text-on-surface truncate">GeoGirl</p>
+</div>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="hourglass_empty">hourglass_empty</span>
+<span class="font-label-md">Waiting...</span>
+</div>
+</div>
+<!-- Player 4 -->
+<div class="player-card-pop bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-surface-container-high flex flex-col gap-xs">
+<div class="flex items-center gap-base">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="hiking">hiking</span>
+</div>
+<p class="font-label-lg text-on-surface truncate">TrailBlazer</p>
+</div>
+<div class="flex items-center gap-1 mt-1 text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md">Ready</span>
+</div>
+</div>
+<!-- Skeleton Loader slots to imply a larger room -->
+<div class="bg-surface-container/30 border border-dashed border-outline-variant p-sm rounded-xl flex flex-col items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant/30 text-2xl" data-icon="add">add</span>
+<span class="font-label-md text-on-surface-variant/40">Searching...</span>
+</div>
+<div class="bg-surface-container/30 border border-dashed border-outline-variant p-sm rounded-xl flex flex-col items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant/30 text-2xl" data-icon="add">add</span>
+<span class="font-label-md text-on-surface-variant/40">Searching...</span>
+</div>
+</div>
+</section>
+<!-- Social Quick Actions (Engagement) -->
+<section class="mt-lg">
+<h3 class="font-label-lg text-on-surface-variant mb-base">Say Hello!</h3>
+<div class="flex gap-sm overflow-x-auto pb-2 no-scrollbar">
+<button class="bg-surface-container-low hover:bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2 transition-all active:scale-95 flex-shrink-0">
+<span class="text-xl">👋</span>
+<span class="font-label-md text-on-surface">Hello!</span>
+</button>
+<button class="bg-surface-container-low hover:bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2 transition-all active:scale-95 flex-shrink-0">
+<span class="text-xl">🌍</span>
+<span class="font-label-md text-on-surface">Let's go!</span>
+</button>
+<button class="bg-surface-container-low hover:bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2 transition-all active:scale-95 flex-shrink-0">
+<span class="text-xl">🧠</span>
+<span class="font-label-md text-on-surface">Brainy</span>
+</button>
+<button class="bg-surface-container-low hover:bg-surface-container-high px-4 py-2 rounded-full flex items-center gap-2 transition-all active:scale-95 flex-shrink-0">
+<span class="text-xl">🚩</span>
+<span class="font-label-md text-on-surface">Flags?</span>
+</button>
+</div>
+<!-- Chat Preview -->
+<div class="mt-sm bg-surface-container-low rounded-xl p-sm flex items-center justify-between border border-surface-container-high">
+<div class="flex items-center gap-base">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<p class="font-body-md text-on-surface-variant italic truncate max-w-[200px]">
+<span class="font-bold">MapMaster42:</span> "I'm ready for the flags!"
+                    </p>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="send">send</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Component -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<div class="max-w-container-max mx-auto flex justify-around items-center px-gutter py-2 pb-safe bg-surface h-16">
+<!-- Active Tab: Game -->
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="videogame_asset" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<span class="font-label-md">Game</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md">Players</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-label-md">Chat</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</div>
+</div>
+</nav>
+<script>
+        // Simple Countdown Logic
+        let seconds = 45;
+        const countdownElement = document.getElementById('countdown');
+        const progressElement = document.getElementById('lobby-progress');
+        
+        const timer = setInterval(() => {
+            seconds--;
+            if (seconds < 0) {
+                clearInterval(timer);
+                countdownElement.innerText = "Starting Now!";
+                return;
+            }
+            
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            countdownElement.innerText = `Starts in: ${m}:${s < 10 ? '0' : ''}${s}`;
+            
+            if (seconds <= 10) {
+                countdownElement.classList.add('timer-red');
+            }
+            
+            // Randomly simulate player joining
+            if (seconds % 7 === 0 && seconds > 5) {
+                const currentWidth = parseFloat(progressElement.style.width);
+                if (currentWidth < 95) {
+                    progressElement.style.width = (currentWidth + 5) + '%';
+                }
+            }
+        }, 1000);
+
+        // Interaction for emoji buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const ripple = document.createElement('div');
+                ripple.className = 'absolute inset-0 bg-white/20 rounded-full animate-ping pointer-events-none';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 500);
+            });
+        });
+    </script>
+</body></html>

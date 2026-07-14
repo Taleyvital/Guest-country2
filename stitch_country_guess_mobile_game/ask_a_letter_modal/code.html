@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Ask a Letter - Country Guess</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#002018",
+                    "on-primary-fixed": "#160066",
+                    "on-tertiary-container": "#fff5f4",
+                    "surface-container-highest": "#dde4e7",
+                    "outline": "#787586",
+                    "surface": "#f4fafd",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "surface-container": "#e8eff2",
+                    "background": "#f4fafd",
+                    "surface-variant": "#dde4e7",
+                    "on-tertiary-fixed": "#410006",
+                    "on-background": "#161d1f",
+                    "on-secondary-fixed-variant": "#005140",
+                    "tertiary-fixed-dim": "#ffb3b0",
+                    "surface-dim": "#d4dbde",
+                    "secondary-fixed-dim": "#4bddb7",
+                    "secondary": "#006b55",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#c6bfff",
+                    "primary-fixed-dim": "#c6bfff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#8c1520",
+                    "on-secondary-container": "#00725b",
+                    "tertiary-fixed": "#ffdad8",
+                    "secondary-fixed": "#6dfad2",
+                    "surface-container-high": "#e2e9ec",
+                    "surface-container-low": "#eef5f8",
+                    "inverse-on-surface": "#ebf2f5",
+                    "on-primary-container": "#faf6ff",
+                    "primary": "#5341cd",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#a62a30",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#6dfad2",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f4fafd",
+                    "on-surface-variant": "#474554",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#e4dfff",
+                    "surface-tint": "#5847d2",
+                    "on-surface": "#161d1f",
+                    "inverse-surface": "#2a3234",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#c84245",
+                    "primary-container": "#6c5ce7",
+                    "outline-variant": "#c8c4d7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "32px",
+                    "xs": "4px",
+                    "xl": "48px",
+                    "base": "8px",
+                    "gutter": "16px",
+                    "md": "20px",
+                    "container-max": "600px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .letter-tile {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .letter-tile.selected {
+            border: 3px solid #6C5CE7;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.4);
+            transform: scale(1.05);
+        }
+        .letter-tile:active:not(.disabled) {
+            transform: translateY(2px);
+        }
+        /* Custom scrollbar for mobile feel */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex items-center justify-center">
+<!-- Mock Background Screen (The Main Game) -->
+<div class="fixed inset-0 z-0 blur-sm pointer-events-none overflow-hidden max-w-[600px] mx-auto bg-surface">
+<!-- Top App Bar Mock -->
+<header class="flex justify-between items-center px-gutter h-16 w-full">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Round 3/5</h1>
+<span class="font-label-lg text-label-lg text-on-surface-variant">#XJ82</span>
+</header>
+<!-- Game Content Mock -->
+<main class="p-gutter flex flex-col items-center gap-lg">
+<div class="w-full aspect-video rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-30" data-alt="A vibrant digital illustration of a world map in a flat vector style, dominated by shades of blue and purple. The map is centered over Europe and Africa, with glowing pins indicating hidden points of interest. The lighting is bright and cheerful, suggesting a fun educational game environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIz2h1J7pIcKqaDY742XvJX8sEUc8wToWHONZqhn8A6_-Dmanwdk4WzKL5COYo7HJJPWqXs-NchYNKFNLg3YTkkQkvceq356pf-mD5s2dx0oGn3cEyzC-8_u21WTuiufG7lQffh9usvGXyH6RCPbbGzBnTrgg5RT0fdpO8ZZO8Dq5J6O4g7CxQtLZai0wgNuTJs_zRxYmOv4RGf4b0Sx6rBJN3CrluHRzHSmsmOPNsfqiEIVS_tUHo"/>
+</div>
+<div class="flex gap-2">
+<div class="w-12 h-14 bg-surface-variant rounded-lg"></div>
+<div class="w-12 h-14 bg-surface-variant rounded-lg"></div>
+<div class="w-12 h-14 bg-surface-variant rounded-lg"></div>
+<div class="w-12 h-14 bg-surface-variant rounded-lg"></div>
+<div class="w-12 h-14 bg-surface-variant rounded-lg"></div>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full mt-4">
+<div class="w-2/3 h-full bg-primary rounded-full"></div>
+</div>
+</main>
+<!-- Bottom Nav Mock -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter py-2 bg-surface">
+<div class="flex flex-col items-center text-primary"><span class="material-symbols-outlined">videogame_asset</span><span class="text-label-md">Game</span></div>
+<div class="flex flex-col items-center text-on-surface-variant"><span class="material-symbols-outlined">group</span><span class="text-label-md">Players</span></div>
+<div class="flex flex-col items-center text-on-surface-variant"><span class="material-symbols-outlined">chat_bubble</span><span class="text-label-md">Chat</span></div>
+<div class="flex flex-col items-center text-on-surface-variant"><span class="material-symbols-outlined">settings</span><span class="text-label-md">Settings</span></div>
+</nav>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 bg-on-background/60 backdrop-blur-sm flex items-end md:items-center justify-center p-gutter transition-opacity duration-300">
+<!-- Modal Container -->
+<div class="bg-surface w-full max-w-container-max rounded-t-[2rem] md:rounded-[2rem] p-lg shadow-lg animate-in slide-in-from-bottom-10 duration-300 flex flex-col gap-6">
+<!-- Modal Header & Description -->
+<div class="text-center">
+<div class="w-12 h-1 bg-surface-container rounded-full mx-auto mb-6 md:hidden"></div>
+<h2 class="font-headline-md text-headline-md-mobile text-on-surface mb-2">Ask a Letter</h2>
+<p class="font-body-md text-body-md text-on-surface-variant px-4">
+                    Choose a letter to reveal. Each letter costs <span class="text-primary font-bold">50 points</span>.
+                </p>
+</div>
+<!-- Letter Grid -->
+<div class="grid grid-cols-6 sm:grid-cols-7 gap-2 md:gap-3 px-1">
+<script>
+                    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+                    const usedLetters = ["A", "E", "I", "S", "T", "R"];
+                    
+                    document.write(letters.map(letter => {
+                        const isDisabled = usedLetters.includes(letter);
+                        const disabledClasses = isDisabled ? "bg-surface-container-highest text-outline cursor-not-allowed opacity-50" : "bg-surface-container-lowest text-on-surface shadow-sm cursor-pointer";
+                        const strike = isDisabled ? "line-through decoration-2" : "";
+                        
+                        return `
+                            <button 
+                                onclick="${!isDisabled ? 'selectLetter(this)' : ''}"
+                                class="letter-tile w-full aspect-square rounded-xl flex items-center justify-center font-headline-md text-headline-md-mobile ${disabledClasses} ${strike} ${!isDisabled ? 'hover:bg-surface-container-low active:scale-95' : ''}"
+                                ${isDisabled ? 'disabled' : ''}
+                            >
+                                ${letter}
+                            </button>
+                        `;
+                    }).join(''));
+
+                    function selectLetter(el) {
+                        // Remove previous selection
+                        document.querySelectorAll('.letter-tile').forEach(t => t.classList.remove('selected'));
+                        // Add selection to clicked element
+                        el.classList.add('selected');
+                        // Enable button
+                        document.getElementById('confirm-btn').disabled = false;
+                        document.getElementById('confirm-btn').classList.remove('opacity-50');
+                    }
+                </script>
+</div>
+<!-- Points Display / Counter -->
+<div class="bg-surface-container-low rounded-xl py-3 px-gutter flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">savings</span>
+<span class="font-label-lg text-label-lg">Balance: 450 pts</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="font-label-lg text-label-lg">-50 pts</span>
+<span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-3 pt-2">
+<button class="w-full bg-primary-container text-on-primary-container py-4 rounded-full font-headline-md text-headline-md-mobile shadow-[0_4px_0_0_#4029ba] active:shadow-none active:translate-y-[2px] transition-all duration-150 opacity-50" disabled="" id="confirm-btn">
+                    Confirm Selection
+                </button>
+<button class="w-full py-3 text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors">
+                    Cancel
+                </button>
+</div>
+</div>
+</div>
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 -z-10 opacity-30 pointer-events-none">
+
+</div>
+<script>
+        // Micro-interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            const tiles = document.querySelectorAll('.letter-tile:not(:disabled)');
+            tiles.forEach(tile => {
+                tile.addEventListener('click', () => {
+                    // Small haptic feel via JS if needed
+                });
+            });
+        });
+    </script>
+</body></html>
