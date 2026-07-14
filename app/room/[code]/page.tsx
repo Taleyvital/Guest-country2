@@ -36,6 +36,10 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
         if (game.error || !game.data) throw new Error("Partie introuvable.");
         setGameId(game.data.id as string);
+
+        // Une erreur ici (table absente, RLS) laissait le picker vide sans un mot :
+        // on croyait la recherche cassée alors que le pool n'était jamais arrivé.
+        if (pool.error) throw new Error(`Pool de pays indisponible : ${pool.error.message}`);
         setCountries((pool.data as Country[]) ?? []);
         if (mine.data) {
           setMyCountry(mine.data as string);

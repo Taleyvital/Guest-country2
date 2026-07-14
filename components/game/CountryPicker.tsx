@@ -59,6 +59,19 @@ export function CountryPicker({
       });
   }, [countries, query, region]);
 
+  // Liste vide = la liste n'a jamais été chargée (migration 0003 non appliquée, ou
+  // fetch en échec). Le dire explicitement : afficher "aucun résultat" ferait croire
+  // à un bug de la recherche, alors qu'il n'y a rien à chercher.
+  if (countries.length === 0) {
+    return (
+      <div className="rounded-lg bg-error-container p-4 text-body-md text-on-error-container">
+        <span className="font-bold">Liste des pays indisponible.</span> La table{" "}
+        <code>countries</code> est vide ou absente — applique la migration{" "}
+        <code>0003_game_loop.sql</code> dans Supabase.
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 rounded-lg border-2 border-tile bg-white px-3 focus-within:border-accent">
