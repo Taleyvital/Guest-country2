@@ -8,6 +8,13 @@
     @apply bg-canvas text-on-background antialiased;
   }
 
+  /* En mode standalone (PWA installée), la barre d'état iOS recouvre le haut de la
+     vue : viewport-fit=cover nous donne toute la surface, à nous de la respecter.
+     Vaut 0 dans un navigateur classique. */
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+
   .material-symbols-outlined {
     font-family: "Material Symbols Outlined";
     font-weight: normal;

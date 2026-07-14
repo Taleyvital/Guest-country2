@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { loadProfile, type Profile } from "@/lib/game/profile";
+import { isPhoto } from "@/lib/game/avatar";
 import { errorMessage } from "@/lib/errors";
 import type { Game } from "@/lib/supabase/types";
 
@@ -126,8 +127,13 @@ export default function Home() {
         onClick={() => router.push("/profile")}
         className="flex w-full items-center gap-3 rounded-lg bg-white p-3 text-left shadow-card active:scale-[0.99]"
       >
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-[24px]">
-          {profile.avatar}
+        <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-surface-container text-[24px]">
+          {isPhoto(profile.avatar) ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            profile.avatar
+          )}
         </span>
         <span className="flex-1">
           <span className="block text-body-lg font-bold">{profile.nickname}</span>

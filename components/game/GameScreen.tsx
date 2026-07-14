@@ -66,7 +66,12 @@ export function GameScreen({
 
   return (
     <div className="min-h-dvh bg-canvas text-on-surface">
-      <header className="fixed top-0 z-50 w-full bg-canvas shadow-sm">
+      <header
+        className="fixed top-0 z-50 w-full bg-canvas shadow-sm"
+        // Fixé au viewport : le padding du body ne s'y applique pas, il passerait
+        // sous la barre d'état.
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="mx-auto flex h-16 w-full max-w-container items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <button

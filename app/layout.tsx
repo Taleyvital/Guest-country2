@@ -11,6 +11,23 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Guess the Country",
   description: "Jeu de devinettes multijoueur, un téléphone par joueur.",
+
+  // Le déclencheur du mode standalone sur iOS. Le `display: "standalone"` du
+  // manifeste ne suffit pas sur toutes les versions : sans cette meta, l'app
+  // ajoutée à l'écran d'accueil se rouvre dans une vue Safari, avec la barre d'URL
+  // en haut et la barre d'outils en bas par-dessus la navigation.
+  appleWebApp: {
+    capable: true,
+    title: "Guess Country",
+    statusBarStyle: "default",
+  },
+
+  // iOS n'utilise PAS les icônes du manifeste : il lui faut un apple-touch-icon,
+  // sinon il colle une capture d'écran de la page sur l'écran d'accueil.
+  icons: {
+    icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 // Jeu tenu en main : pas de zoom, on respecte les safe areas iOS.

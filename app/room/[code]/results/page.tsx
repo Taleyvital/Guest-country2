@@ -6,6 +6,7 @@ import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { errorMessage } from "@/lib/errors";
 import type { Player } from "@/lib/supabase/types";
+import { isPhoto } from "@/lib/game/avatar";
 
 export default function ResultsPage({ params }: { params: { code: string } }) {
   const router = useRouter();
@@ -51,7 +52,16 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
             const isFirst = rank === 1;
             return (
               <div key={p.id} className="flex flex-1 flex-col items-center gap-2">
-                <span className="text-[32px]">{p.avatar ?? "🌍"}</span>
+                {isPhoto(p.avatar) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.avatar!}
+                    alt=""
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[32px]">{p.avatar ?? "🌍"}</span>
+                )}
                 <span className="max-w-full truncate text-label-lg">{p.nickname}</span>
                 <div
                   className={[
@@ -124,7 +134,12 @@ function RankRow({ player, rank, isMe }: { player: Player; rank: number; isMe: b
     >
       <span className="flex items-center gap-3">
         <span className="w-6 text-label-lg text-on-surface-variant">{rank}</span>
-        <span className="text-[20px]">{player.avatar ?? "🌍"}</span>
+        {isPhoto(player.avatar) ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={player.avatar!} alt="" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <span className="text-[20px]">{player.avatar ?? "🌍"}</span>
+        )}
         <span className="text-body-lg">{player.nickname}</span>
         {isMe && (
           <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-label-md text-on-primary-fixed">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loadProfile, type Profile } from "@/lib/game/profile";
+import { isPhoto } from "@/lib/game/avatar";
 
 type Stats = {
   games_played: number;
@@ -86,8 +87,13 @@ export default function ProfilePage() {
       </header>
 
       <section className="flex flex-col items-center gap-2 rounded-xl bg-white p-6 shadow-card">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-surface-container text-[48px]">
-          {profile?.avatar ?? "🌍"}
+        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-surface-container text-[48px]">
+          {isPhoto(profile?.avatar) ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile!.avatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            (profile?.avatar ?? "🌍")
+          )}
         </div>
         <h2 className="text-headline-md">{profile?.nickname ?? "Joueur"}</h2>
         <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md text-on-primary-fixed">

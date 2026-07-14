@@ -1,6 +1,7 @@
 "use client";
 
 import type { GamePlayer } from "@/lib/game/types";
+import { isPhoto } from "@/lib/game/avatar";
 
 /**
  * Rail des joueurs — et sélecteur de cible.
@@ -42,12 +43,14 @@ function PlayerCard({
       ].join(" ")}
     >
       <div className="relative">
-        {player.avatarUrl ? (
+        {/* L'avatar est soit une URL de photo, soit un emoji : sans ce test, un
+            emoji atterrissait dans un src d'image et affichait une icône cassée. */}
+        {isPhoto(player.avatarUrl) ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={player.avatarUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
+          <img src={player.avatarUrl!} alt="" className="h-12 w-12 rounded-full object-cover" />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-tile text-headline-md text-on-surface-variant">
-            {player.name.charAt(0).toUpperCase()}
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-tile text-[24px]">
+            {player.avatarUrl || player.name.charAt(0).toUpperCase()}
           </div>
         )}
         {isActive && (
