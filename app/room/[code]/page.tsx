@@ -6,6 +6,7 @@ import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { errorMessage } from "@/lib/errors";
 import { CountryPicker } from "@/components/game/CountryPicker";
+import { LeaveDialog } from "@/components/game/LeaveDialog";
 import type { Country } from "@/lib/game/types";
 
 export default function RoomPage({ params }: { params: { code: string } }) {
@@ -18,6 +19,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   const [myCountry, setMyCountry] = useState<string>("");
   const [picking, setPicking] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
   // L'URL ne porte que le code (dictable) ; le channel Realtime s'abonne sur l'id.
   useEffect(() => {
@@ -81,6 +83,13 @@ export default function RoomPage({ params }: { params: { code: string } }) {
     await supabase.from("players").update({ is_ready: !me.is_ready }).eq("id", me.id);
   }
 
+  async function leaveGame() {
+    if (!gameId) return;
+    const { error: e } = await supabase.rpc("leave_game", { p_game_id: gameId });
+    if (e) return setError(errorMessage(e));
+    router.push("/");
+  }
+
   async function startGame() {
     if (!game) return;
     const { error: e } = await supabase.rpc("start_game", { p_game_id: game.id });
@@ -105,7 +114,20 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   }
 
   return (
-    <main className="screen flex min-h-dvh flex-col gap-6 py-10">
+    <main className="screen flex min-h-dvh flex-col gap-6 py-6">
+      {/* Quitter un salon libère sa place (et transfère l'hôte si c'est lui qui part) :
+          ce n'est pas un simple retour arrière, on demande donc confirmation. */}
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={() => setLeaveOpen(true)}
+          aria-label="Quitter le salon"
+          className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-low"
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+      </div>
+
       <header className="text-center">
         <p className="text-label-lg uppercase tracking-widest text-on-surface-variant">
           Code de la partie
@@ -215,6 +237,16 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           </button>
         )}
       </div>
+
+      <LeaveDialog
+        open={leaveOpen}
+        isPlaying={false}
+        onClose={() => setLeaveOpen(false)}
+        // Garder sa place : on quitte l'écran, pas le salon. L'accueil proposera
+        // de reprendre.
+        onKeepSeat={() => router.push("/")}
+        onLeave={leaveGame}
+      />
     </main>
   );
 }
