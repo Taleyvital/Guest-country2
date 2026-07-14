@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { loadNickname, saveNickname } from "@/lib/game/nickname";
 import type { Game } from "@/lib/supabase/types";
+
+/** Une partie en cours où ce téléphone a déjà une place. */
+type ActiveGame = { code: string; status: string; round: number };
 
 export default function Home() {
   const router = useRouter();
@@ -14,6 +18,48 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [active, setActive] = useState<ActiveGame | null>(null);
+
+  useEffect(() => {
+    // Le pseudo est demandé UNE fois, puis relu à chaque retour sur l'accueil.
+    setNickname(loadNickname());
+
+    if (!configured) return;
+
+    (async () => {
+      try {
+        const session = await ensureAnonymousSession();
+        if (!session) return;
+        const supabase = getSupabaseBrowserClient();
+
+        // La session anonyme est stable : après un "retour", la place en partie
+        // existe toujours. Sans ce rappel, il faudrait retaper un code de room
+        // qu'on n'a peut-être plus sous les yeux.
+        //
+        // Le filtre sur user_id est indispensable : la RLS m'autorise à lire TOUS les
+        // joueurs des parties où je suis (il faut bien voir ses adversaires), donc
+        // sans lui je récupérerais la ligne — et le pseudo — de quelqu'un d'autre.
+        const { data } = await supabase
+          .from("players")
+          .select("nickname, games(code, status, round)")
+          .eq("user_id", session.user.id)
+          .order("joined_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const game = (data as { games?: ActiveGame } | null)?.games;
+        if (game && game.status !== "finished") setActive(game);
+
+        const saved = (data as { nickname?: string } | null)?.nickname;
+        if (saved) {
+          setNickname(saved);
+          saveNickname(saved);
+        }
+      } catch {
+        // Pas de session, pas de partie en cours : l'accueil normal suffit.
+      }
+    })();
+  }, [configured]);
 
   async function run(action: "create" | "join") {
     const name = nickname.trim();
@@ -25,6 +71,7 @@ export default function Home() {
 
     try {
       await ensureAnonymousSession();
+      saveNickname(name);
       const supabase = getSupabaseBrowserClient();
 
       const { data, error: rpcError } =
@@ -72,6 +119,28 @@ export default function Home() {
           <code>.env.local</code>, applique les migrations, puis relance{" "}
           <code>npm run dev</code>.
         </div>
+      )}
+
+      {/* Une place est toujours ouverte quelque part : on y ramène en un geste plutôt
+          que de faire retaper un code de room. */}
+      {active && (
+        <button
+          type="button"
+          onClick={() =>
+            router.push(
+              active.status === "playing"
+                ? `/room/${active.code}/play`
+                : `/room/${active.code}`,
+            )
+          }
+          className="w-full rounded-lg bg-secondary-container p-4 text-left text-on-secondary-container active:scale-[0.99]"
+        >
+          <span className="text-label-md uppercase tracking-widest">Partie en cours</span>
+          <p className="text-body-lg">
+            Reprendre <span className="font-bold">#{active.code}</span>
+            {active.status === "playing" ? ` · manche ${active.round}` : " · en attente"}
+          </p>
+        </button>
       )}
 
       <input
