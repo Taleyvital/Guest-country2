@@ -6,6 +6,7 @@ import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { loadProfile, type Profile } from "@/lib/game/profile";
 import { isPhoto } from "@/lib/game/avatar";
+import { AppTitle } from "@/components/AppTitle";
 import { errorMessage } from "@/lib/errors";
 import type { Game } from "@/lib/supabase/types";
 
@@ -21,6 +22,10 @@ export default function Home() {
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<ActiveGame | null>(null);
+  // Le champ code ne s'affiche qu'une fois "Rejoindre" choisi : l'accueil reste
+  // lisible pour le cas le plus fréquent (créer), et ne demande pas un code qu'on
+  // n'a pas encore reçu.
+  const [joining, setJoining] = useState(false);
 
   useEffect(() => {
     // Pas de profil = premier lancement : on le crée avant toute chose. Le pseudo
@@ -100,28 +105,127 @@ export default function Home() {
     }
   }
 
-  if (!profile) return null; // redirection vers /onboarding en cours
+  // Le profil vit dans localStorage : il n'est lisible qu'après montage. Plutôt que
+  // de renvoyer null (écran blanc, puis apparition brutale), on affiche déjà le titre —
+  // c'est le même à l'arrivée, donc rien ne saute.
+  if (!profile) {
+    return (
+      <main className="screen flex min-h-dvh flex-col items-center justify-center gap-8 pb-28">
+        <AppTitle />
+      </main>
+    );
+  }
 
   return (
-    <main className="screen flex min-h-dvh flex-col items-center justify-center gap-6 py-10 pb-28 text-center">
-      <div>
-        <h1 className="text-headline-lg-mobile">Guess the Country</h1>
-        <p className="mt-1 text-body-md text-on-surface-variant">
-          Un téléphone par joueur. Pas d&apos;écran commun.
-        </p>
-      </div>
+    <main className="screen flex min-h-dvh flex-col items-center justify-center gap-8 py-10 pb-28 text-center">
+      <AppTitle />
+      <p className="-mt-4 text-body-md text-on-surface-variant">
+        Un téléphone par joueur. Pas d&apos;écran commun.
+      </p>
 
       {!configured && (
         <div className="w-full rounded-lg bg-error-container p-4 text-left text-body-md text-on-error-container">
           <span className="font-bold">Supabase n&apos;est pas configuré.</span> Renseigne{" "}
-          <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
-          dans <code>.env.local</code>, applique les migrations, puis relance{" "}
-          <code>npm run dev</code>.
+          <code>NEXT_PUBLIC_SUPABASE_URL</code> et{" "}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans <code>.env.local</code>, applique
+          les migrations, puis relance <code>npm run dev</code>.
         </div>
       )}
 
-      {/* Porte d'entrée du profil : stats, niveau, carnet. La modification du pseudo
-          se fait depuis le profil, pas ici — c'est le geste le plus rare. */}
+      {/* Une place reste ouverte : on y ramène en un geste, avant même de proposer
+          d'en créer une nouvelle. */}
+      {active && (
+        <button
+          type="button"
+          onClick={() =>
+            router.push(
+              active.status === "playing"
+                ? `/room/${active.code}/play`
+                : `/room/${active.code}`,
+            )
+          }
+          className="w-full animate-slide-up rounded-lg bg-secondary-container p-4 text-left text-on-secondary-container active:scale-[0.99]"
+        >
+          <span className="text-label-md uppercase tracking-widest">Partie en cours</span>
+          <p className="text-body-lg">
+            Reprendre <span className="font-bold">#{active.code}</span>
+            {active.status === "playing" ? ` · manche ${active.round}` : " · en attente"}
+          </p>
+        </button>
+      )}
+
+      <div className="flex w-full flex-col gap-3">
+        <button
+          type="button"
+          disabled={!configured || busy !== null}
+          onClick={() => run("create")}
+          className="btn-primary flex w-full items-center justify-center gap-2 rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
+        >
+          <span className="material-symbols-outlined">add_circle</span>
+          {busy === "create" ? "Création…" : "Créer une partie"}
+        </button>
+
+        {!joining ? (
+          <button
+            type="button"
+            disabled={!configured}
+            onClick={() => setJoining(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-accent bg-white py-4 text-label-lg text-accent active:scale-95 disabled:border-tile disabled:text-outline"
+          >
+            <span className="material-symbols-outlined">login</span>
+            Rejoindre une partie
+          </button>
+        ) : (
+          <div className="flex animate-slide-up flex-col gap-3 rounded-xl bg-white p-4 shadow-card">
+            <div className="flex items-center justify-between">
+              <span className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+                Code de la partie
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setJoining(false);
+                  setCode("");
+                  setError(null);
+                }}
+                aria-label="Annuler"
+                className="text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <input
+              autoFocus
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === "Enter" && code.trim() && run("join")}
+              maxLength={4}
+              inputMode="text"
+              autoCapitalize="characters"
+              placeholder="XJ82"
+              className="w-full rounded-lg border-2 border-tile bg-canvas py-4 text-center text-display-lg uppercase tracking-[0.3em] outline-none focus:border-accent"
+            />
+
+            <button
+              type="button"
+              disabled={!configured || busy !== null || code.trim().length < 4}
+              onClick={() => run("join")}
+              className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
+            >
+              {busy === "join" ? "Connexion…" : "Rejoindre"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <p role="alert" className="text-body-md text-danger">
+          {error}
+        </p>
+      )}
+
+      {/* Le profil passe en bas : c'est une destination secondaire, pas une action. */}
       <button
         type="button"
         onClick={() => router.push("/profile")}
@@ -145,66 +249,7 @@ export default function Home() {
           chevron_right
         </span>
       </button>
-
-      {/* Une place reste ouverte : on y ramène en un geste. */}
-      {active && (
-        <button
-          type="button"
-          onClick={() =>
-            router.push(
-              active.status === "playing"
-                ? `/room/${active.code}/play`
-                : `/room/${active.code}`,
-            )
-          }
-          className="w-full rounded-lg bg-secondary-container p-4 text-left text-on-secondary-container active:scale-[0.99]"
-        >
-          <span className="text-label-md uppercase tracking-widest">Partie en cours</span>
-          <p className="text-body-lg">
-            Reprendre <span className="font-bold">#{active.code}</span>
-            {active.status === "playing" ? ` · manche ${active.round}` : " · en attente"}
-          </p>
-        </button>
-      )}
-
-      <button
-        type="button"
-        disabled={!configured || busy !== null}
-        onClick={() => run("create")}
-        className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
-      >
-        {busy === "create" ? "Création…" : "Créer une partie"}
-      </button>
-
-      <div className="flex w-full items-center gap-3 text-label-md uppercase text-on-surface-variant">
-        <div className="h-px flex-1 bg-tile" />
-        ou
-        <div className="h-px flex-1 bg-tile" />
-      </div>
-
-      <div className="flex w-full gap-2">
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          maxLength={4}
-          placeholder="CODE"
-          className="w-32 rounded-lg border-2 border-tile bg-white py-3 text-center text-headline-md uppercase tracking-widest outline-none focus:border-accent"
-        />
-        <button
-          type="button"
-          disabled={!configured || busy !== null}
-          onClick={() => run("join")}
-          className="flex-1 rounded-full border-2 border-accent bg-white py-4 text-label-lg text-accent active:scale-95 disabled:cursor-not-allowed disabled:border-tile disabled:text-outline"
-        >
-          {busy === "join" ? "Connexion…" : "Rejoindre"}
-        </button>
-      </div>
-
-      {error && (
-        <p role="alert" className="text-body-md text-danger">
-          {error}
-        </p>
-      )}
     </main>
   );
+
 }

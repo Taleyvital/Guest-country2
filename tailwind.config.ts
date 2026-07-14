@@ -106,10 +106,23 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        // Apparition du titre, lettre par lettre : chaque lettre retombe en place.
+        "letter-in": {
+          "0%": { opacity: "0", transform: "translateY(-24px) rotate(-8deg)" },
+          "60%": { opacity: "1", transform: "translateY(3px) rotate(1deg)" },
+          "100%": { opacity: "1", transform: "translateY(0) rotate(0)" },
+        },
+        // Le globe respire : discret, mais l'accueil n'est plus figé.
+        float: {
+          "0%, 100%": { transform: "translateY(0) rotate(0)" },
+          "50%": { transform: "translateY(-8px) rotate(6deg)" },
+        },
       },
       animation: {
         "tile-pop": "tile-pop 220ms ease-out",
         "slide-up": "slide-up 300ms ease-out",
+        "letter-in": "letter-in 520ms cubic-bezier(.2,.9,.3,1.4) both",
+        float: "float 4s ease-in-out infinite",
       },
     },
   },
