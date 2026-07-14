@@ -4,7 +4,14 @@ import { useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
 import { tilesFromMask, type GamePlayer, type LastAction } from "@/lib/game/types";
 
-const POOL = ["BRESIL", "ITALIE", "JAPON", "MAROC", "CANADA", "SUEDE"];
+const POOL = [
+  { name: "BRESIL", region: "Amérique du Sud" },
+  { name: "ITALIE", region: "Europe" },
+  { name: "JAPON", region: "Asie" },
+  { name: "MAROC", region: "Afrique" },
+  { name: "CANADA", region: "Amérique du Nord" },
+  { name: "SUEDE", region: "Europe" },
+];
 
 /** Démo locale de GameScreen, sans Supabase : sert à valider le rendu et le flux. */
 export default function GameDemoPage() {

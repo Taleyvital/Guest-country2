@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { CountryTile } from "@/lib/game/types";
+import { useEffect, useState } from "react";
+import type { Country, CountryTile } from "@/lib/game/types";
+import { CountryPicker } from "./CountryPicker";
 
 export function GuessCountryModal({
   open,
@@ -20,11 +21,11 @@ export function GuessCountryModal({
   /** Le pays de la cible, en cours de révélation. */
   tiles: CountryTile[];
   /**
-   * Le pool de pays jouables. Une mauvaise réponse élimine : laisser saisir du texte
-   * libre ferait perdre une manche sur une faute de frappe ("BRESIL" vs "BRÉSIL").
-   * On propose donc l'autocomplétion sur la liste exacte que le serveur validera.
+   * Le pool jouable. Une mauvaise réponse élimine : laisser saisir du texte libre
+   * ferait perdre une manche sur une faute de frappe ou un accent. On ne valide donc
+   * QUE des pays de la liste — le joueur sélectionne, il ne saisit pas.
    */
-  countries?: string[];
+  countries?: Country[];
   playersLeft?: number;
   onClose: () => void;
   onConfirm: (guess: string) => void;
@@ -41,12 +42,6 @@ export function GuessCountryModal({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
-
-  const normalized = guess.trim().toUpperCase();
-  const isValid = useMemo(
-    () => countries.length === 0 || countries.includes(normalized),
-    [countries, normalized],
-  );
 
   if (!open) return null;
 
@@ -102,28 +97,12 @@ export function GuessCountryModal({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <input
-            autoFocus
-            list="countries"
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && isValid && normalized && onConfirm(normalized)}
-            placeholder="Écris un pays…"
-            className="w-full border-b-4 border-tile bg-transparent py-3 text-center text-headline-md uppercase text-on-surface outline-none transition-colors focus:border-accent"
-          />
-          <datalist id="countries">
-            {countries.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
-
-          {normalized && !isValid && (
-            <p className="text-center text-label-md text-danger">
-              Ce pays n’est pas dans la liste jouable.
-            </p>
-          )}
-        </div>
+        <CountryPicker
+          countries={countries}
+          value={guess}
+          onChange={setGuess}
+          placeholder="Chercher un pays…"
+        />
 
         {playersLeft !== undefined && (
           <p className="text-center text-label-md text-on-surface-variant">
@@ -139,13 +118,15 @@ export function GuessCountryModal({
           >
             Annuler
           </button>
+          {/* `guess` ne peut venir que du picker : c'est forcément un nom exact du
+              pool. Plus de saisie libre, donc plus d'élimination sur une faute de frappe. */}
           <button
             type="button"
-            disabled={!normalized || !isValid}
-            onClick={() => onConfirm(normalized)}
+            disabled={!guess}
+            onClick={() => onConfirm(guess)}
             className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-4 text-label-lg text-white shadow-btn-3d transition-all active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba] disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none disabled:active:translate-y-0"
           >
-            Valider
+            {guess ? `Valider : ${guess}` : "Choisis un pays"}
             <span className="material-symbols-outlined">send</span>
           </button>
         </div>

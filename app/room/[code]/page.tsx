@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
+import { CountryPicker } from "@/components/game/CountryPicker";
+import type { Country } from "@/lib/game/types";
 
 export default function RoomPage({ params }: { params: { code: string } }) {
   const router = useRouter();
@@ -11,7 +13,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
   const [gameId, setGameId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [countries, setCountries] = useState<{ name: string; region: string }[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [myCountry, setMyCountry] = useState<string>("");
   const [picking, setPicking] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
         if (game.error || !game.data) throw new Error("Partie introuvable.");
         setGameId(game.data.id as string);
-        setCountries((pool.data as { name: string; region: string }[]) ?? []);
+        setCountries((pool.data as Country[]) ?? []);
         if (mine.data) {
           setMyCountry(mine.data as string);
           setPicking(mine.data as string);
@@ -113,28 +115,20 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           Choisis le pays que les autres devront deviner.
         </p>
 
-        <div className="flex gap-2">
-          <select
-            value={picking}
-            onChange={(e) => setPicking(e.target.value)}
-            className="flex-1 rounded-lg border-2 border-tile bg-white px-3 py-3 text-body-lg outline-none focus:border-accent"
-          >
-            <option value="">— Choisir —</option>
-            {countries.map((c) => (
-              <option key={c.name} value={c.name}>
-                {c.name} · {c.region}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            disabled={!picking || picking === myCountry}
-            onClick={() => pickCountry(picking)}
-            className="rounded-full bg-accent px-6 py-3 text-label-lg text-white shadow-btn-3d disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
-          >
-            {myCountry ? "Changer" : "Valider"}
-          </button>
-        </div>
+        <CountryPicker countries={countries} value={picking} onChange={setPicking} />
+
+        <button
+          type="button"
+          disabled={!picking || picking === myCountry}
+          onClick={() => pickCountry(picking)}
+          className="rounded-full bg-accent px-6 py-3 text-label-lg text-white shadow-btn-3d disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
+        >
+          {picking && picking === myCountry
+            ? "Pays validé"
+            : myCountry
+              ? `Changer pour ${picking || "…"}`
+              : `Valider ${picking || ""}`}
+        </button>
 
         {myCountry && (
           <p className="text-body-md text-success">

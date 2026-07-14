@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { GameScreen } from "@/components/game/GameScreen";
-import { tilesFromMask, type GamePlayer, type LastAction } from "@/lib/game/types";
+import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
 export default function PlayPage({ params }: { params: { code: string } }) {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
 
   const [gameId, setGameId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [countries, setCountries] = useState<string[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,11 +24,11 @@ export default function PlayPage({ params }: { params: { code: string } }) {
       const supabase = getSupabaseBrowserClient();
       const [game, pool] = await Promise.all([
         supabase.from("games").select("id").eq("code", code).single(),
-        supabase.from("countries").select("name").order("name"),
+        supabase.from("countries").select("name, region").order("name"),
       ]);
 
       if (game.data) setGameId(game.data.id as string);
-      setCountries(((pool.data as { name: string }[]) ?? []).map((c) => c.name));
+      setCountries((pool.data as Country[]) ?? []);
     })();
   }, [code]);
 

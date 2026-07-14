@@ -1,6 +1,12 @@
 /** Types de la couche présentation. Découplés des rows Supabase à dessein :
  *  les composants doivent rester montables avec des données de mock. */
 
+/** Un pays du pool jouable. La région sert d'indice public et de filtre de recherche. */
+export type Country = {
+  name: string;
+  region: string;
+};
+
 export type GamePlayer = {
   id: string;
   name: string;
