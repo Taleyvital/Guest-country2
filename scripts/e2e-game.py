@@ -111,7 +111,8 @@ print("\n--- ÉLIMINATION")
 game = sel(f"games?id=eq.{gid}&select=current_player_id", tok[0])[0]
 check("retour au tour d'Alice", game["current_player_id"] == pid["Alice"], game)
 r = rpc("submit_guess", tok[0], {"p_target_player_id": pid["Bob"], "p_guess": "CHINE"})
-check("mauvaise réponse -> false", r is False, r)
+check("mauvaise réponse -> correct=false", r.get("correct") is False, r)
+check("mauvaise réponse : -100 pts annoncés", r.get("points") == -100, r)
 alice = sel(f"players?id=eq.{pid['Alice']}&select=is_eliminated,score", tok[0])[0]
 check("le joueur est éliminé", alice["is_eliminated"] is True, alice)
 check("il perd 100 pts", alice["score"] == -150, alice)
@@ -125,14 +126,16 @@ check("un éliminé ne peut plus jouer", "not your turn" in str(r), r)
 print("\n--- BONNE RÉPONSE & VICTOIRE")
 # Bob devine BRESIL (Chloe), puis Chloe devine JAPON (Bob) -> plus de cible -> fin
 r = rpc("submit_guess", tok[1], {"p_target_player_id": pid["Chloe"], "p_guess": "BRESIL"})
-check("bonne réponse -> true", r is True, r)
+check("bonne réponse -> correct=true", r.get("correct") is True, r)
+check("le pays est renvoyé pour la célébration", r.get("country") == "BRESIL", r)
+check("les points sont annoncés par le serveur", r.get("points") == 500 + 100 * 5, r)
 chloe = sel(f"players?id=eq.{pid['Chloe']}&select=is_cracked,masked", tok[1])[0]
 check("le pays trouvé est révélé", chloe["masked"] == "BRESIL" and chloe["is_cracked"], chloe)
 bobp = sel(f"players?id=eq.{pid['Bob']}&select=score", tok[1])[0]
 check("bonne réponse : +500 +100/lettre restante", bobp["score"] == -50 + 500 + 100 * 5, bobp)
 
 r = rpc("submit_guess", tok[2], {"p_target_player_id": pid["Bob"], "p_guess": "JAPON"})
-check("bonne réponse sur Bob -> true", r is True, r)
+check("bonne réponse sur Bob -> correct=true", r.get("correct") is True, r)
 
 # Le pays d'Alice reste à trouver : être éliminé n'met pas son pays à l'abri.
 game = sel(f"games?id=eq.{gid}&select=status", tok[0])[0]
@@ -140,7 +143,7 @@ check("la partie continue tant qu'un pays est inconnu", game["status"] == "playi
 
 # Bob trouve le dernier pays (celui d'Alice, éliminée) -> plus rien à deviner.
 r = rpc("submit_guess", tok[1], {"p_target_player_id": pid["Alice"], "p_guess": "FRANCE"})
-check("le pays d'un éliminé reste devinable", r is True, r)
+check("le pays d'un éliminé reste devinable", r.get("correct") is True, r)
 
 game = sel(f"games?id=eq.{gid}&select=status,ended_at,current_player_id", tok[0])[0]
 check("plus rien à deviner -> partie terminée", game["status"] == "finished", game)
@@ -150,6 +153,24 @@ check("plus de tour en cours", game["current_player_id"] is None, game)
 final = sel(f"players?game_id=eq.{gid}&select=nickname,score&order=score.desc", tok[0])
 print("\nClassement final :", [(p["nickname"], p["score"]) for p in final])
 check("le vainqueur est celui qui a le plus de points", final[0]["score"] >= final[1]["score"])
+
+print("\n--- PROFIL & DÉCOUVERTES")
+st = sel("player_stats?select=*", tok[1])
+check("les stats de Bob existent", isinstance(st, list) and len(st) == 1, st)
+if isinstance(st, list) and st:
+    b = st[0]
+    check("2 bonnes réponses comptées", b["correct_guesses"] == 2, b)
+    check("1 partie jouée", b["games_played"] == 1, b)
+    check("Bob a gagné", b["wins"] == 1, b)
+
+disc = sel("discoveries?select=country,times&order=country", tok[1])
+check("Bob a découvert BRESIL et FRANCE",
+      sorted(d["country"] for d in disc) == ["BRESIL", "FRANCE"], disc)
+
+# Étanchéité : les stats sont-elles bien privées ?
+alice_view = sel("discoveries?select=country", tok[0])
+check("Alice ne voit pas les découvertes de Bob",
+      all(d["country"] not in ("BRESIL", "FRANCE") for d in alice_view), alice_view)
 
 print("\n" + ("TOUT PASSE" if ok else "DES TESTS ÉCHOUENT"))
 sys.exit(0 if ok else 1)

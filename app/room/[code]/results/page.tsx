@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { errorMessage } from "@/lib/errors";
+import type { Player } from "@/lib/supabase/types";
 
 export default function ResultsPage({ params }: { params: { code: string } }) {
   const router = useRouter();
@@ -27,10 +28,12 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
   const { players } = useGameChannel(gameId);
   const ranking = [...players].sort((a, b) => b.score - a.score);
 
-  // Une égalité en tête est possible (deux joueurs au même score) : on annonce
-  // "ex æquo" plutôt que de couronner arbitrairement le premier du tri.
-  const top = ranking[0]?.score;
-  const winners = ranking.filter((p) => p.score === top);
+  // Le podium de la maquette est ordonné 2 – 1 – 3 : le vainqueur au centre, surélevé.
+  const [first, second, third] = ranking;
+  const podium = [second, first, third].filter(Boolean);
+
+  const me = ranking.find((p) => p.user_id === userId);
+  const myRank = me ? ranking.indexOf(me) + 1 : null;
 
   return (
     <main className="screen flex min-h-dvh flex-col gap-6 py-10">
@@ -41,62 +44,103 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
         </p>
       </header>
 
-      {winners.length > 0 && (
-        <section className="rounded-xl bg-success p-6 text-center text-white shadow-card">
-          <span className="text-label-lg uppercase tracking-widest opacity-90">
-            {winners.length > 1 ? "Ex æquo" : "Vainqueur"}
-          </span>
-          <p className="text-headline-lg-mobile">
-            🏆 {winners.map((w) => w.nickname).join(" & ")}
-          </p>
-          <p className="text-body-md opacity-90">{top} points</p>
+      {podium.length > 0 && (
+        <section className="flex items-end justify-center gap-3">
+          {podium.map((p) => {
+            const rank = ranking.indexOf(p) + 1;
+            const isFirst = rank === 1;
+            return (
+              <div key={p.id} className="flex flex-1 flex-col items-center gap-2">
+                <span className="text-[32px]">{p.avatar ?? "🌍"}</span>
+                <span className="max-w-full truncate text-label-lg">{p.nickname}</span>
+                <div
+                  className={[
+                    "flex w-full flex-col items-center justify-end rounded-t-xl px-2 pb-3 pt-2",
+                    isFirst
+                      ? "h-32 bg-success text-white"
+                      : "h-24 bg-surface-container-high text-on-surface",
+                  ].join(" ")}
+                >
+                  {isFirst && (
+                    <span className="material-symbols-outlined">emoji_events</span>
+                  )}
+                  <span className="text-headline-md">{rank}</span>
+                  <span className="text-label-md">{p.score} pts</span>
+                </div>
+              </div>
+            );
+          })}
         </section>
       )}
 
-      <ol className="flex flex-col gap-2">
-        {ranking.map((p, i) => (
-          <li
-            key={p.id}
-            className={[
-              "flex items-center justify-between rounded-lg p-4 shadow-card",
-              i === 0 ? "bg-secondary-container" : "bg-white",
-            ].join(" ")}
-          >
-            <span className="flex items-center gap-3 text-body-lg">
-              <span className="w-6 text-label-lg text-on-surface-variant">{i + 1}</span>
-              {p.nickname}
-              {p.user_id === userId && (
-                <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-label-md text-on-primary-fixed">
-                  Toi
-                </span>
-              )}
-            </span>
-            <span className="text-headline-md">{p.score} pts</span>
-          </li>
-        ))}
-      </ol>
+      <section className="flex flex-col gap-2">
+        <h2 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+          Classement complet
+        </h2>
+        <ol className="flex flex-col gap-2">
+          {ranking.map((p, i) => (
+            <RankRow key={p.id} player={p} rank={i + 1} isMe={p.user_id === userId} />
+          ))}
+        </ol>
+      </section>
+
+      {myRank && myRank > 3 && (
+        <p className="text-center text-body-md text-on-surface-variant">
+          {myRank}ᵉ sur {ranking.length}. Ça se joue à quelques déductions.
+        </p>
+      )}
 
       <SaveProfileCard />
 
-      <button
-        type="button"
-        onClick={() => router.push("/")}
-        className="btn-primary mt-auto w-full rounded-full"
-      >
-        Retour à l’accueil
-      </button>
+      <div className="mt-auto flex gap-3">
+        <button
+          type="button"
+          onClick={() => router.push("/")}
+          className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-accent bg-white py-4 text-label-lg text-accent active:scale-95"
+        >
+          <span className="material-symbols-outlined">meeting_room</span>
+          Accueil
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/profile")}
+          className="btn-primary flex flex-1 items-center justify-center gap-2 rounded-full"
+        >
+          <span className="material-symbols-outlined">stars</span>
+          Mon profil
+        </button>
+      </div>
     </main>
+  );
+}
+
+function RankRow({ player, rank, isMe }: { player: Player; rank: number; isMe: boolean }) {
+  return (
+    <li
+      className={[
+        "flex items-center justify-between rounded-lg p-4 shadow-card",
+        isMe ? "border-2 border-accent bg-white" : "bg-white",
+      ].join(" ")}
+    >
+      <span className="flex items-center gap-3">
+        <span className="w-6 text-label-lg text-on-surface-variant">{rank}</span>
+        <span className="text-[20px]">{player.avatar ?? "🌍"}</span>
+        <span className="text-body-lg">{player.nickname}</span>
+        {isMe && (
+          <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-label-md text-on-primary-fixed">
+            Toi
+          </span>
+        )}
+      </span>
+      <span className="text-headline-md">{player.score} pts</span>
+    </li>
   );
 }
 
 /**
  * Proposer un compte MAINTENANT, et pas avant : il y a enfin quelque chose à
- * sauvegarder (un score, un historique). Demander un e-mail pour entrer dans une
- * partie aurait fait fuir la moitié de la table.
- *
- * `updateUser({ email })` sur une session anonyme envoie un lien de confirmation et
- * convertit le compte anonyme en compte permanent — le même `auth.uid()` est conservé,
- * donc les lignes `players` déjà créées restent rattachées au joueur.
+ * sauvegarder. `updateUser({ email })` convertit la session anonyme en compte
+ * permanent EN CONSERVANT le même auth.uid() — stats et découvertes suivent.
  */
 function SaveProfileCard() {
   const [email, setEmail] = useState("");
@@ -121,7 +165,7 @@ function SaveProfileCard() {
   if (state === "sent") {
     return (
       <div className="rounded-lg bg-secondary-container p-4 text-center text-body-md text-on-secondary-container">
-        Vérifie tes mails : un lien de confirmation t’attend. Ton score est conservé.
+        Vérifie tes mails : un lien de confirmation t’attend. Ton profil est conservé.
       </div>
     );
   }
@@ -129,7 +173,7 @@ function SaveProfileCard() {
   return (
     <section className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-card">
       <h2 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-        Garder ton score
+        Garder ta progression
       </h2>
       <p className="text-body-md text-on-surface-variant">
         Ton profil ne vit que sur ce téléphone. Ajoute un e-mail pour le retrouver

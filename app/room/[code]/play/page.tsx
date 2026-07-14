@@ -7,6 +7,7 @@ import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { errorMessage } from "@/lib/errors";
 import { GameScreen } from "@/components/game/GameScreen";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
+import { SuccessCelebration, type GuessResult } from "@/components/game/SuccessCelebration";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
 export default function PlayPage({ params }: { params: { code: string } }) {
@@ -18,6 +19,8 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   const [countries, setCountries] = useState<Country[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const [guessResult, setGuessResult] = useState<GuessResult | null>(null);
+  const [guessedName, setGuessedName] = useState<string>();
 
   useEffect(() => {
     (async () => {
@@ -113,9 +116,25 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         onAskLetter={(targetId, letter) =>
           call("ask_letter", { p_target_player_id: targetId, p_letter: letter })
         }
-        onGuessCountry={(targetId, guess) =>
-          call("submit_guess", { p_target_player_id: targetId, p_guess: guess })
-        }
+        onGuessCountry={async (targetId, guess) => {
+          const supabase = getSupabaseBrowserClient();
+          const { data, error: e } = await supabase.rpc("submit_guess", {
+            p_target_player_id: targetId,
+            p_guess: guess,
+          });
+          if (e) return setError(errorMessage(e));
+
+          // Les chiffres de la célébration viennent du serveur : le client ne
+          // recalcule pas le barème, il l'afficherait faux à la première évolution.
+          setGuessedName(viewPlayers.find((p) => p.id === targetId)?.name);
+          setGuessResult(data as GuessResult);
+        }}
+      />
+
+      <SuccessCelebration
+        result={guessResult}
+        targetName={guessedName}
+        onClose={() => setGuessResult(null)}
       />
 
       <LeaveDialog
