@@ -27,6 +27,11 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
   const { players } = useGameChannel(gameId);
   const ranking = [...players].sort((a, b) => b.score - a.score);
 
+  // Une égalité en tête est possible (deux joueurs au même score) : on annonce
+  // "ex æquo" plutôt que de couronner arbitrairement le premier du tri.
+  const top = ranking[0]?.score;
+  const winners = ranking.filter((p) => p.score === top);
+
   return (
     <main className="screen flex min-h-dvh flex-col gap-6 py-10">
       <header className="text-center">
@@ -35,6 +40,18 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
           #{code}
         </p>
       </header>
+
+      {winners.length > 0 && (
+        <section className="rounded-xl bg-success p-6 text-center text-white shadow-card">
+          <span className="text-label-lg uppercase tracking-widest opacity-90">
+            {winners.length > 1 ? "Ex æquo" : "Vainqueur"}
+          </span>
+          <p className="text-headline-lg-mobile">
+            🏆 {winners.map((w) => w.nickname).join(" & ")}
+          </p>
+          <p className="text-body-md opacity-90">{top} points</p>
+        </section>
+      )}
 
       <ol className="flex flex-col gap-2">
         {ranking.map((p, i) => (
