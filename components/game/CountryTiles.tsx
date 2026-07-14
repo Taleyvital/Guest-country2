@@ -4,12 +4,20 @@ import type { CountryTile } from "@/lib/game/types";
  * Le mot à deviner, façon Wordle. Une tuile cachée est un simple bloc #DFE6E9 :
  * elle ne porte AUCUNE lettre dans le DOM, sinon la réponse se lirait à l'inspecteur.
  */
-export function CountryTiles({ tiles, hint }: { tiles: CountryTile[]; hint?: string }) {
+export function CountryTiles({
+  tiles,
+  hint,
+  title = "Ton pays",
+}: {
+  tiles: CountryTile[];
+  hint?: string;
+  title?: string;
+}) {
   return (
     <section className="rounded-xl border-b-2 border-surface-container-highest bg-white p-6 shadow-card">
-      <div className="mb-4 flex items-end justify-between">
+      <div className="mb-4 flex items-end justify-between gap-2">
         <h3 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-          Ton pays
+          {title}
         </h3>
         {hint && (
           <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md text-accent">

@@ -2,82 +2,87 @@
 
 import { useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
-import type { CountryTile, GamePlayer, LastAction } from "@/lib/game/types";
+import { tilesFromMask, type GamePlayer, type LastAction } from "@/lib/game/types";
 
-/**
- * Page de démo : branche GameScreen sur un état local pour valider le rendu et les
- * interactions sans Supabase. À remplacer par les données de useGameChannel.
- */
+const POOL = ["BRESIL", "ITALIE", "JAPON", "MAROC", "CANADA", "SUEDE"];
+
+/** Démo locale de GameScreen, sans Supabase : sert à valider le rendu et le flux. */
 export default function GameDemoPage() {
-  const players: GamePlayer[] = [
-    { id: "p1", name: "Marie", lettersLeft: 6 },
-    { id: "p2", name: "Yao", lettersLeft: 6 },
-    { id: "p3", name: "Alex", lettersLeft: 6, isMe: true },
-  ];
-
-  const [turnIndex, setTurnIndex] = useState(0);
-  const [tiles, setTiles] = useState<CountryTile[]>([
-    { letter: "B" },
-    { letter: "R" },
-    { letter: "A" },
-    { letter: null },
-    { letter: null },
-    { letter: null },
+  const [players, setPlayers] = useState<GamePlayer[]>([
+    { id: "p1", name: "Marie", lettersLeft: 6, masked: "______", region: "Europe", askedLetters: [] },
+    { id: "p2", name: "Yao", lettersLeft: 6, masked: "_____", region: "Asie", askedLetters: [] },
+    { id: "p3", name: "Alex", lettersLeft: 6, isMe: true, masked: "BRA___", region: "Amérique du Sud", askedLetters: ["B", "R", "A", "E"] },
   ]);
-  const [usedLetters, setUsedLetters] = useState(["A", "B", "R", "E"]);
-  const [lastAction, setLastAction] = useState<LastAction | null>({
-    id: "seed",
-    type: "ask_letter",
-    actorName: "Yao",
-    targetIsMe: true,
-    letter: "E",
-    found: false,
-  });
+  const [turnIndex, setTurnIndex] = useState(2); // c'est mon tour, pour tester les actions
+  const [lastAction, setLastAction] = useState<LastAction | null>(null);
 
-  const currentTurnPlayer = players[turnIndex];
+  // Le "vrai" pays de chaque joueur ne vit ici que parce qu'on est en démo :
+  // en production il est dans player_secrets et ne descend jamais au client.
+  const SECRETS: Record<string, string> = { p1: "ITALIE", p2: "JAPON", p3: "BRESIL" };
+
   const me = players.find((p) => p.isMe)!;
-  const secret = "BRAZIL";
+  const currentTurnPlayer = players[turnIndex];
 
-  const handleAskLetter = (letter: string) => {
+  const nextTurn = () => setTurnIndex((i) => (i + 1) % players.length);
+
+  const askLetter = (targetId: string, letter: string) => {
+    const secret = SECRETS[targetId];
     const found = secret.includes(letter);
 
-    if (found) {
-      setTiles((prev) =>
-        prev.map((tile, i) =>
-          secret[i] === letter ? { letter, state: "correct" as const } : tile,
-        ),
-      );
-    }
-    setUsedLetters((prev) => [...prev, letter]);
+    setPlayers((prev) =>
+      prev.map((p) => {
+        if (p.id === targetId) {
+          const revealed = [...(p.askedLetters ?? []), letter].filter((l) => secret.includes(l));
+          return {
+            ...p,
+            askedLetters: [...(p.askedLetters ?? []), letter],
+            masked: secret
+              .split("")
+              .map((ch) => (revealed.includes(ch) ? ch : "_"))
+              .join(""),
+          };
+        }
+        if (p.isMe) return { ...p, lettersLeft: p.lettersLeft - 1 };
+        return p;
+      }),
+    );
 
-    // Remplacement, pas empilement : setLastAction reçoit un objet, pas un spread
-    // du précédent. C'est ici que l'historique se serait accumulé si on avait
-    // utilisé un tableau.
+    // Remplacement, pas empilement : setLastAction reçoit un objet, jamais un spread
+    // du précédent. C'est ici qu'un historique se serait accumulé.
     setLastAction({
-      id: `${Date.now()}`,
+      id: `${performance.now()}`,
       type: "ask_letter",
       actorName: me.name,
-      targetName: "Marie",
+      targetName: players.find((p) => p.id === targetId)?.name,
       letter,
       found,
     });
-
-    setTurnIndex((i) => (i + 1) % players.length);
+    nextTurn();
   };
 
-  const handleGuess = (guess: string) => {
-    const correct = guess.trim().toUpperCase() === secret;
+  const guess = (targetId: string, value: string) => {
+    const correct = value === SECRETS[targetId];
+    const targetName = players.find((p) => p.id === targetId)?.name;
+
+    if (correct) {
+      setPlayers((prev) =>
+        prev.map((p) =>
+          p.id === targetId ? { ...p, isCracked: true, masked: SECRETS[targetId] } : p,
+        ),
+      );
+    } else {
+      setPlayers((prev) => prev.map((p) => (p.isMe ? { ...p, isEliminated: true } : p)));
+    }
 
     setLastAction({
-      id: `${Date.now()}`,
+      id: `${performance.now()}`,
       type: correct ? "guess" : "eliminated",
       actorName: me.name,
-      guess: guess.trim().toUpperCase(),
+      targetName,
+      guess: value,
       correct,
     });
-
-    if (correct) setTiles(secret.split("").map((l) => ({ letter: l, state: "correct" as const })));
-    setTurnIndex((i) => (i + 1) % players.length);
+    nextTurn();
   };
 
   return (
@@ -85,24 +90,23 @@ export default function GameDemoPage() {
       <GameScreen
         currentTurnPlayer={currentTurnPlayer}
         players={players}
-        myCountryTiles={tiles}
+        myCountryTiles={tilesFromMask(me.masked ?? "")}
         lastAction={lastAction}
         roomCode="XJ82"
         round={3}
         totalRounds={5}
-        regionHint="Amérique du Sud"
-        usedLetters={usedLetters}
-        onAskLetter={handleAskLetter}
-        onGuessCountry={handleGuess}
+        regionHint={me.region ?? undefined}
+        countries={POOL}
+        onAskLetter={askLetter}
+        onGuessCountry={guess}
       />
 
-      {/* Aide de dev : forcer le tour pour vérifier l'état désactivé des boutons. */}
       <button
         type="button"
-        onClick={() => setTurnIndex((i) => (i + 1) % players.length)}
+        onClick={nextTurn}
         className="fixed right-3 top-20 z-[70] rounded-full bg-inverse-surface px-3 py-1 text-label-md text-inverse-on-surface opacity-70"
       >
-        dev: next turn
+        dev: tour suivant
       </button>
     </>
   );

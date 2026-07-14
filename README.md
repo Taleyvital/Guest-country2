@@ -58,15 +58,23 @@ donc **le même joueur**. Pour simuler deux joueurs sur une machine : une fenêt
 - **Les lettres cachées ne sont jamais envoyées au client.** Une tuile non révélée ne porte
   aucune lettre dans le DOM, sinon la réponse se lirait à l'inspecteur.
 
-## État actuel
+## Règles
 
-Fonctionnel : création, jointure par code, lobby temps réel, lancement synchronisé,
-composants de jeu (tuiles, rail joueurs, last action, modals).
+Chaque joueur **choisit son pays** dans le lobby. Les autres doivent le deviner.
 
-**Non tranché :** qui possède le pays secret et qui le devine (chacun ignore le sien /
-chacun devine celui d'un adversaire / un pays commun par manche). Tant que ce choix n'est pas
-fait, le schéma ne stocke ni le mot ni les lettres révélées, et l'écran de jeu affiche un mot
-vide. Le schéma actuel (`actor_id` + `target_id` sur les events) supporte les trois lectures.
+À son tour, un joueur désigne un adversaire, puis :
+
+- **demande une lettre** — cherchée dans le pays de *la cible*. Coût : 50 points, budget de
+  6 questions par manche. Les lettres déjà demandées sur un pays sont publiques : deux
+  enquêteurs partagent ce qu'ils ont découvert sur une même cible.
+- **tente le pays** — juste : +500, plus 100 par question non consommée (on récompense la
+  déduction, pas l'épuisement du budget). Faux : éliminé de la manche, −100.
+
+Chacun voit son propre pays s'éventer sans pouvoir l'empêcher. La manche s'achève quand
+tous les pays sont trouvés, ou qu'il ne reste plus personne pour enquêter.
+
+Toute la règle vit dans les RPC `pick_country`, `start_game`, `ask_letter`, `submit_guess`
+(`supabase/migrations/0003_game_loop.sql`). Aucun client ne peut écrire l'état du jeu.
 
 ## Design
 

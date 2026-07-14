@@ -6,13 +6,20 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export function AskLetterModal({
   open,
+  targetName,
   usedLetters,
   cost = 50,
   onClose,
   onConfirm,
 }: {
   open: boolean;
-  /** Lettres déjà demandées ce round : barrées et non re-cliquables. */
+  /** Le joueur dont on sonde le pays. */
+  targetName: string;
+  /**
+   * Lettres déjà demandées SUR CE JOUEUR, par n'importe qui : barrées et non
+   * re-cliquables. C'est une info publique — tout le monde a vu passer les actions —
+   * et deux enquêteurs partagent donc ce qu'ils ont découvert sur une même cible.
+   */
   usedLetters: string[];
   cost?: number;
   onClose: () => void;
@@ -51,9 +58,12 @@ export function AskLetterModal({
       >
         <div className="text-center">
           <div className="mx-auto mb-6 h-1 w-12 rounded-full bg-surface-container sm:hidden" />
-          <h2 className="mb-2 text-headline-md text-on-surface">Demander une lettre</h2>
+          <h2 className="mb-2 text-headline-md text-on-surface">
+            Interroger {targetName}
+          </h2>
           <p className="px-4 text-body-md text-on-surface-variant">
-            Choisis une lettre à révéler. Chaque lettre coûte{" "}
+            Quelle lettre cherches-tu dans le pays de{" "}
+            <span className="font-bold">{targetName}</span> ? Chaque lettre te coûte{" "}
             <span className="font-bold text-accent">{cost} points</span>.
           </p>
         </div>

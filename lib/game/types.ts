@@ -5,9 +5,19 @@ export type GamePlayer = {
   id: string;
   name: string;
   avatarUrl?: string | null;
+  /** Budget de questions restant à CE joueur. */
   lettersLeft: number;
   isMe?: boolean;
   isEliminated?: boolean;
+
+  /** Son pays, tel que la table l'a découvert : "BRA___". */
+  masked?: string;
+  /** Indice public : "Amérique du Sud". */
+  region?: string | null;
+  /** Lettres déjà demandées sur SON pays, par n'importe qui. */
+  askedLetters?: string[];
+  /** Son pays a été trouvé : ce n'est plus une cible valide. */
+  isCracked?: boolean;
 };
 
 /** Une case du mot à deviner. `letter` est null tant que la lettre n'est pas révélée —
@@ -16,6 +26,14 @@ export type CountryTile = {
   letter: string | null;
   state?: "hidden" | "revealed" | "correct" | "wrong";
 };
+
+/** "BRA___" -> tuiles. Les espaces (ex. "COREE DU SUD") ne sont pas à deviner. */
+export function tilesFromMask(masked: string): CountryTile[] {
+  return masked.split("").map((ch) => ({
+    letter: ch === "_" ? null : ch,
+    state: ch === "_" ? ("hidden" as const) : ("revealed" as const),
+  }));
+}
 
 export type LastActionType = "ask_letter" | "guess" | "eliminated" | "turn_skipped";
 
@@ -27,7 +45,7 @@ export type LastAction = {
   id: string;
   type: LastActionType;
   actorName: string;
-  /** Cible de l'action. `targetIsMe` permet d'écrire "asked you" plutôt que "asked Yao". */
+  /** Cible de l'action — le joueur dont on sonde le pays. */
   targetName?: string | null;
   targetIsMe?: boolean;
   letter?: string | null;

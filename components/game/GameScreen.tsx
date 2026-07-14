@@ -13,6 +13,7 @@ export type GameScreenProps = {
   /** Joueur dont c'est le tour. `null` = partie en pause / transition. */
   currentTurnPlayer: GamePlayer | null;
   players: GamePlayer[];
+  /** MON pays, tel que les autres l'ont découvert. Je le regarde s'éventer. */
   myCountryTiles: CountryTile[];
   /** Objet unique — jamais un tableau d'historique. */
   lastAction: LastAction | null;
@@ -20,12 +21,14 @@ export type GameScreenProps = {
   roomCode?: string;
   round?: number;
   totalRounds?: number;
+  /** La région de MON pays (que j'ai choisi — donc aucun secret pour moi). */
   regionHint?: string;
-  usedLetters?: string[];
+  /** Pool de pays jouables, pour l'autocomplétion du guess. */
+  countries?: string[];
   letterCost?: number;
 
-  onAskLetter?: (letter: string) => void;
-  onGuessCountry?: (guess: string) => void;
+  onAskLetter?: (targetId: string, letter: string) => void;
+  onGuessCountry?: (targetId: string, guess: string) => void;
   onBack?: () => void;
 };
 
@@ -38,7 +41,7 @@ export function GameScreen({
   round,
   totalRounds,
   regionHint,
-  usedLetters = [],
+  countries = [],
   letterCost = 50,
   onAskLetter,
   onGuessCountry,
@@ -46,15 +49,20 @@ export function GameScreen({
 }: GameScreenProps) {
   const [askOpen, setAskOpen] = useState(false);
   const [guessOpen, setGuessOpen] = useState(false);
+  const [targetId, setTargetId] = useState<string | null>(null);
 
   const me = players.find((p) => p.isMe) ?? null;
 
-  // Le tour se déduit d'une seule source : la prop. Aucun état local ne le duplique,
+  // Le tour vient d'une seule source : la prop. Aucun état local ne le duplique,
   // sinon deux téléphones pourraient se croire simultanément en tour.
   const isMyTurn = Boolean(me && currentTurnPlayer && me.id === currentTurnPlayer.id);
   const canPlay = isMyTurn && !me?.isEliminated;
 
-  const playersLeft = players.filter((p) => !p.isEliminated).length;
+  const target = players.find((p) => p.id === targetId) ?? null;
+  // Une cible périmée (pays trouvé entre-temps) ne doit pas rester sélectionnée.
+  const validTarget = target && !target.isCracked && !target.isMe ? target : null;
+
+  const uncracked = players.filter((p) => !p.isCracked && !p.isMe).length;
 
   return (
     <div className="min-h-dvh bg-canvas text-on-surface">
@@ -81,7 +89,7 @@ export function GameScreen({
       </header>
 
       <main className="mx-auto flex min-h-dvh max-w-container flex-col gap-6 px-4 pb-44 pt-20">
-        {/* Turn banner : le seul repère de "c'est à qui" quand il n'y a pas d'écran commun. */}
+        {/* Le seul repère de "c'est à qui" quand il n'y a pas d'écran commun. */}
         <section>
           <div
             className={[
@@ -101,41 +109,65 @@ export function GameScreen({
           </div>
         </section>
 
-        <PlayerRail players={players} currentTurnPlayerId={currentTurnPlayer?.id ?? null} />
+        <PlayerRail
+          players={players}
+          currentTurnPlayerId={currentTurnPlayer?.id ?? null}
+          selectedTargetId={validTarget?.id ?? null}
+          onSelectTarget={setTargetId}
+          canSelect={canPlay}
+        />
 
-        <CountryTiles tiles={myCountryTiles} hint={regionHint} />
+        {/* Mon propre pays : je le connais, je le regarde se faire découvrir. */}
+        <CountryTiles
+          tiles={myCountryTiles}
+          hint={regionHint}
+          title="Ton pays (ce que les autres ont trouvé)"
+        />
 
         <LastActionCard action={lastAction} />
       </main>
 
       <ActionBar
         isMyTurn={canPlay}
+        hasTarget={Boolean(validTarget)}
+        targetName={validTarget?.name}
         turnOwnerName={currentTurnPlayer && !isMyTurn ? currentTurnPlayer.name : undefined}
+        outOfLetters={canPlay && (me?.lettersLeft ?? 0) <= 0}
         onAskLetter={() => setAskOpen(true)}
         onGuessCountry={() => setGuessOpen(true)}
       />
 
-      <AskLetterModal
-        open={askOpen}
-        usedLetters={usedLetters}
-        cost={letterCost}
-        onClose={() => setAskOpen(false)}
-        onConfirm={(letter) => {
-          setAskOpen(false);
-          onAskLetter?.(letter);
-        }}
-      />
+      {validTarget && (
+        <>
+          <AskLetterModal
+            open={askOpen}
+            targetName={validTarget.name}
+            usedLetters={validTarget.askedLetters ?? []}
+            cost={letterCost}
+            onClose={() => setAskOpen(false)}
+            onConfirm={(letter) => {
+              setAskOpen(false);
+              onAskLetter?.(validTarget.id, letter);
+            }}
+          />
 
-      <GuessCountryModal
-        open={guessOpen}
-        tiles={myCountryTiles}
-        playersLeft={playersLeft}
-        onClose={() => setGuessOpen(false)}
-        onConfirm={(guess) => {
-          setGuessOpen(false);
-          onGuessCountry?.(guess);
-        }}
-      />
+          <GuessCountryModal
+            open={guessOpen}
+            targetName={validTarget.name}
+            targetRegion={validTarget.region ?? undefined}
+            tiles={(validTarget.masked ?? "").split("").map((ch) => ({
+              letter: ch === "_" ? null : ch,
+            }))}
+            countries={countries}
+            playersLeft={uncracked}
+            onClose={() => setGuessOpen(false)}
+            onConfirm={(guess) => {
+              setGuessOpen(false);
+              onGuessCountry?.(validTarget.id, guess);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

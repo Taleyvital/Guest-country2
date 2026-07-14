@@ -11,10 +11,12 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
   const [gameId, setGameId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [countries, setCountries] = useState<{ name: string; region: string }[]>([]);
+  const [myCountry, setMyCountry] = useState<string>("");
+  const [picking, setPicking] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  // L'URL ne porte que le code (lisible, dictable) ; le channel Realtime, lui,
-  // s'abonne sur l'id. On résout l'un vers l'autre au montage.
+  // L'URL ne porte que le code (dictable) ; le channel Realtime s'abonne sur l'id.
   useEffect(() => {
     (async () => {
       try {
@@ -22,14 +24,21 @@ export default function RoomPage({ params }: { params: { code: string } }) {
         setUserId(session?.user.id ?? null);
 
         const supabase = getSupabaseBrowserClient();
-        const { data, error: e } = await supabase
-          .from("games")
-          .select("id")
-          .eq("code", code)
-          .single();
+        const [game, pool, mine] = await Promise.all([
+          supabase.from("games").select("id").eq("code", code).single(),
+          supabase.from("countries").select("name, region").order("name"),
+          // Le joueur a le droit de relire SON pays après une reconnexion.
+          // Celui des autres reste hors de portée : le RPC ne lit que sa ligne.
+          supabase.rpc("my_country"),
+        ]);
 
-        if (e || !data) throw new Error("Partie introuvable.");
-        setGameId(data.id as string);
+        if (game.error || !game.data) throw new Error("Partie introuvable.");
+        setGameId(game.data.id as string);
+        setCountries((pool.data as { name: string; region: string }[]) ?? []);
+        if (mine.data) {
+          setMyCountry(mine.data as string);
+          setPicking(mine.data as string);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
@@ -40,30 +49,38 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
   const me = players.find((p) => p.user_id === userId) ?? null;
   const isHost = Boolean(me?.is_host);
-  const everyoneReady = players.length > 1 && players.every((p) => p.is_ready);
+  const canStart =
+    players.length > 1 && players.every((p) => p.is_ready && p.has_picked);
+
+  const supabase = getSupabaseBrowserClient();
+
+  async function pickCountry(name: string) {
+    const { error: e } = await supabase.rpc("pick_country", { p_country: name });
+    if (e) return setError(e.message);
+    setMyCountry(name);
+    setError(null);
+  }
 
   async function toggleReady() {
     if (!me) return;
-    const supabase = getSupabaseBrowserClient();
+    // Se déclarer prêt sans pays choisi n'a pas de sens : il n'y aurait rien à deviner.
+    if (!me.has_picked) return setError("Choisis ton pays d’abord.");
     await supabase.from("players").update({ is_ready: !me.is_ready }).eq("id", me.id);
   }
 
   async function startGame() {
-    if (!game || !isHost) return;
-    const supabase = getSupabaseBrowserClient();
-    await supabase
-      .from("games")
-      .update({ status: "playing", started_at: new Date().toISOString() })
-      .eq("id", game.id);
+    if (!game) return;
+    const { error: e } = await supabase.rpc("start_game", { p_game_id: game.id });
+    if (e) setError(e.message);
   }
 
-  // Tous les téléphones basculent ensemble : c'est le changement de `status` en
-  // base qui déclenche la navigation, pas le clic de l'hôte.
+  // Tous les téléphones basculent ensemble : c'est le `status` en base qui déclenche
+  // la navigation, pas le clic de l'hôte.
   useEffect(() => {
     if (game?.status === "playing") router.push(`/room/${code}/play`);
   }, [game?.status, code, router]);
 
-  if (error) {
+  if (error && !gameId) {
     return (
       <main className="screen flex min-h-dvh flex-col items-center justify-center gap-4 text-center">
         <p className="text-headline-md">{error}</p>
@@ -77,15 +94,55 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   return (
     <main className="screen flex min-h-dvh flex-col gap-6 py-10">
       <header className="text-center">
-        <h1 className="text-headline-lg-mobile">En attente des joueurs…</h1>
-        <p className="mt-2 text-label-lg uppercase tracking-widest text-on-surface-variant">
+        <p className="text-label-lg uppercase tracking-widest text-on-surface-variant">
           Code de la partie
         </p>
         <p className="text-display-lg tracking-widest text-accent">{code}</p>
         <p className="text-body-md text-on-surface-variant">
           {status === "live" ? `${players.length} joueur(s)` : "Connexion…"}
+          {game && game.round > 1 ? ` · Manche ${game.round}/${game.total_rounds}` : ""}
         </p>
       </header>
+
+      {/* Choix du pays : c'est LUI que les autres devront deviner. */}
+      <section className="flex flex-col gap-2 rounded-xl bg-white p-4 shadow-card">
+        <h2 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+          Ton pays
+        </h2>
+        <p className="text-body-md text-on-surface-variant">
+          Choisis le pays que les autres devront deviner.
+        </p>
+
+        <div className="flex gap-2">
+          <select
+            value={picking}
+            onChange={(e) => setPicking(e.target.value)}
+            className="flex-1 rounded-lg border-2 border-tile bg-white px-3 py-3 text-body-lg outline-none focus:border-accent"
+          >
+            <option value="">— Choisir —</option>
+            {countries.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name} · {c.region}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={!picking || picking === myCountry}
+            onClick={() => pickCountry(picking)}
+            className="rounded-full bg-accent px-6 py-3 text-label-lg text-white shadow-btn-3d disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
+          >
+            {myCountry ? "Changer" : "Valider"}
+          </button>
+        </div>
+
+        {myCountry && (
+          <p className="text-body-md text-success">
+            Ton pays : <span className="font-bold">{myCountry}</span> — les autres n’en
+            voient que la longueur et la région.
+          </p>
+        )}
+      </section>
 
       <ul className="flex flex-col gap-2">
         {players.map((p) => {
@@ -107,15 +164,26 @@ export default function RoomPage({ params }: { params: { code: string } }) {
                   </span>
                 )}
               </span>
-              <span
-                className={`text-label-lg ${p.is_ready ? "text-success" : "text-on-surface-variant"}`}
-              >
-                {p.is_ready ? "Prêt" : "En attente…"}
+              <span className="flex items-center gap-2 text-label-lg">
+                {/* Le pays des autres n'est jamais affiché — seulement le fait qu'ils
+                    en aient choisi un. */}
+                <span className={p.has_picked ? "text-success" : "text-on-surface-variant"}>
+                  {p.has_picked ? "Pays ✓" : "Sans pays"}
+                </span>
+                <span className={p.is_ready ? "text-success" : "text-on-surface-variant"}>
+                  {p.is_ready ? "Prêt" : "En attente…"}
+                </span>
               </span>
             </li>
           );
         })}
       </ul>
+
+      {error && (
+        <p role="alert" className="text-center text-body-md text-danger">
+          {error}
+        </p>
+      )}
 
       <div className="mt-auto flex flex-col gap-3">
         <button
@@ -131,14 +199,14 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           <button
             type="button"
             onClick={startGame}
-            disabled={!everyoneReady}
+            disabled={!canStart}
             className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
           >
-            {everyoneReady
+            {canStart
               ? "Lancer la partie"
               : players.length < 2
                 ? "Il faut au moins 2 joueurs"
-                : "En attente des joueurs…"}
+                : "Tout le monde doit choisir un pays et être prêt"}
           </button>
         )}
       </div>

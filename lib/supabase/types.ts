@@ -34,6 +34,24 @@ export type Player = {
   /** Ordre de passage dans le tour de table. */
   seat: number;
   joined_at: string;
+
+  /**
+   * MON pays, tel que les autres l'ont découvert : "BRA___". C'est la SEULE
+   * représentation du pays qui descend jusqu'au client — le mot complet vit dans
+   * `player_secrets`, table sans aucune policy RLS, inaccessible au navigateur.
+   */
+  masked: string;
+  /** Indice public : "Amérique du Sud". */
+  region: string | null;
+  /** Lettres déjà demandées SUR ce pays, par n'importe qui. Public. */
+  asked_letters: string[];
+  revealed_letters: string[];
+  /** Mon pays a été trouvé : je ne suis plus une cible valide. */
+  is_cracked: boolean;
+  /** Mon budget de questions pour la manche. */
+  letters_left: number;
+  /** A choisi son pays : condition pour lancer la partie. */
+  has_picked: boolean;
 };
 
 export type GameEvent = {
