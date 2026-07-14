@@ -90,7 +90,7 @@ export default function GameDemoPage() {
         roomCode="XJ82"
         round={3}
         totalRounds={5}
-        regionHint="South America"
+        regionHint="Amérique du Sud"
         usedLetters={usedLetters}
         onAskLetter={handleAskLetter}
         onGuessCountry={handleGuess}

@@ -29,7 +29,7 @@ export function ActionBar({
       <div className="mx-auto flex max-w-container flex-col gap-2">
         {disabled && (
           <p className="text-center text-label-md uppercase tracking-wide text-on-surface-variant">
-            {turnOwnerName ? `Au tour de ${turnOwnerName}` : "Ce n'est pas votre tour"}
+            {turnOwnerName ? `Au tour de ${turnOwnerName}` : "Ce n’est pas ton tour"}
           </p>
         )}
 
@@ -41,7 +41,7 @@ export function ActionBar({
             className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent px-6 py-4 text-label-lg text-white shadow-btn-3d transition-all active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba] disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none disabled:active:translate-y-0"
           >
             <span className="material-symbols-outlined">contact_support</span>
-            Ask a letter
+            Demander une lettre
           </button>
 
           <button
@@ -51,7 +51,7 @@ export function ActionBar({
             className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-accent bg-white px-6 py-4 text-label-lg text-accent transition-all active:scale-95 disabled:cursor-not-allowed disabled:border-tile disabled:bg-white disabled:text-outline disabled:active:scale-100"
           >
             <span className="material-symbols-outlined">public</span>
-            Guess the country
+            Deviner le pays
           </button>
         </div>
       </div>

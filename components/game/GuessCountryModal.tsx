@@ -35,7 +35,7 @@ export function GuessCountryModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Guess the country"
+      aria-label="Deviner le pays"
       className="fixed inset-0 z-[60] flex items-end justify-center bg-on-background/60 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
@@ -45,21 +45,21 @@ export function GuessCountryModal({
       >
         <div className="text-center">
           <div className="mx-auto mb-6 h-1 w-12 rounded-full bg-surface-container sm:hidden" />
-          <h2 className="text-headline-md text-on-surface">Guess the Country</h2>
+          <h2 className="text-headline-md text-on-surface">Deviner le pays</h2>
         </div>
 
         {/* Le coup est irréversible : on le dit avant, pas après. */}
         <div className="flex items-start gap-3 rounded-lg bg-error-container p-4 text-on-error-container">
           <span className="material-symbols-outlined">warning</span>
           <p className="text-body-md">
-            <span className="font-bold">Warning:</span> an incorrect guess will eliminate you from
-            this round. Think carefully.
+            <span className="font-bold">Attention :</span> une mauvaise réponse t’élimine de cette
+            manche. Réfléchis bien.
           </p>
         </div>
 
         <div className="flex flex-col gap-3">
           <span className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-            Current clue
+            Indice actuel
           </span>
           <div className="flex flex-wrap justify-center gap-2">
             {tiles.map((tile, i) => (
@@ -83,13 +83,13 @@ export function GuessCountryModal({
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && guess.trim() && onConfirm(guess.trim())}
-          placeholder="Type a country…"
+          placeholder="Écris un pays…"
           className="w-full border-b-4 border-tile bg-transparent py-3 text-center text-headline-md text-on-surface outline-none transition-colors focus:border-accent"
         />
 
         {playersLeft !== undefined && (
           <p className="text-center text-label-md text-on-surface-variant">
-            {playersLeft} players are still in this round
+            {playersLeft} joueur{playersLeft > 1 ? "s" : ""} encore en lice
           </p>
         )}
 
@@ -99,7 +99,7 @@ export function GuessCountryModal({
             onClick={onClose}
             className="flex-1 rounded-full border-2 border-outline-variant bg-white py-4 text-label-lg text-on-surface-variant active:scale-95"
           >
-            Cancel
+            Annuler
           </button>
           <button
             type="button"
@@ -107,7 +107,7 @@ export function GuessCountryModal({
             onClick={() => onConfirm(guess.trim())}
             className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-4 text-label-lg text-white shadow-btn-3d transition-all active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba] disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none disabled:active:translate-y-0"
           >
-            Submit Guess
+            Valider
             <span className="material-symbols-outlined">send</span>
           </button>
         </div>

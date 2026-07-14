@@ -73,7 +73,7 @@ export function GameScreen({
           </div>
           {round && totalRounds && (
             <h1 className="text-headline-md text-accent">
-              Round {round}/{totalRounds}
+              Manche {round}/{totalRounds}
             </h1>
           )}
           <div className="w-10" />
@@ -94,8 +94,8 @@ export function GameScreen({
             <span className="text-center text-headline-md text-white">
               {currentTurnPlayer
                 ? isMyTurn
-                  ? "🎯 Your turn"
-                  : `🎯 ${currentTurnPlayer.name}'s turn`
+                  ? "🎯 À toi de jouer"
+                  : `🎯 Au tour de ${currentTurnPlayer.name}`
                 : "⏳ En attente…"}
             </span>
           </div>

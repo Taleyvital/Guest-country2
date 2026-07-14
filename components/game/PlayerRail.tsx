@@ -35,7 +35,7 @@ function PlayerCard({ player, isActive }: { player: GamePlayer; isActive: boolea
       </div>
 
       <span className="max-w-full truncate text-label-lg">
-        {player.isMe ? "You" : player.name}
+        {player.isMe ? "Toi" : player.name}
       </span>
 
       <span
@@ -46,7 +46,7 @@ function PlayerCard({ player, isActive }: { player: GamePlayer; isActive: boolea
             : "bg-surface-container-high text-on-surface-variant",
         ].join(" ")}
       >
-        {player.lettersLeft} letters left
+        {player.lettersLeft} lettre{player.lettersLeft > 1 ? "s" : ""}
       </span>
     </div>
   );
@@ -62,7 +62,7 @@ export function PlayerRail({
   return (
     <section className="flex flex-col gap-3">
       <h3 className="ml-1 text-label-lg uppercase tracking-widest text-on-surface-variant">
-        Players
+        Joueurs
       </h3>
       <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
         {players.map((p) => (

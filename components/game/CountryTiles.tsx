@@ -9,7 +9,7 @@ export function CountryTiles({ tiles, hint }: { tiles: CountryTile[]; hint?: str
     <section className="rounded-xl border-b-2 border-surface-container-highest bg-white p-6 shadow-card">
       <div className="mb-4 flex items-end justify-between">
         <h3 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-          Your country
+          Ton pays
         </h3>
         {hint && (
           <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md text-accent">
@@ -41,7 +41,7 @@ export function CountryTiles({ tiles, hint }: { tiles: CountryTile[]; hint?: str
                 // "Pop" 1.1x à la révélation, comme spécifié dans le design system.
                 revealed ? "animate-tile-pop" : "",
               ].join(" ")}
-              aria-label={revealed ? `Lettre ${tile.letter}` : "Lettre cachée"}
+              aria-label={revealed ? `Lettre ${tile.letter} révélée` : "Lettre cachée"}
             >
               {tile.letter}
             </div>

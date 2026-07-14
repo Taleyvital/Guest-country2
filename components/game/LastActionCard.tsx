@@ -16,7 +16,7 @@ export function LastActionCard({ action }: { action: LastAction | null }) {
   if (!action) {
     return (
       <section className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4">
-        <span className="text-label-md uppercase text-on-surface-variant">Last Action</span>
+        <span className="text-label-md uppercase text-on-surface-variant">Dernière action</span>
         <p className="text-body-md text-on-surface-variant">En attente du premier coup…</p>
       </section>
     );
@@ -33,7 +33,7 @@ export function LastActionCard({ action }: { action: LastAction | null }) {
         </div>
         <div className="flex flex-col">
           <span className="mb-0.5 text-label-md uppercase text-on-surface-variant">
-            Last Action
+            Dernière action
           </span>
           <p className="text-body-md text-on-surface">
             <ActionSentence action={action} />
@@ -46,18 +46,21 @@ export function LastActionCard({ action }: { action: LastAction | null }) {
 
 function ActionSentence({ action }: { action: LastAction }) {
   const actor = <span className="font-bold">{action.actorName}</span>;
-  const target = action.targetIsMe ? "you" : action.targetName;
+
+  // "t’a demandé" quand c'est moi la cible, "a demandé à Yao" sinon : la préposition
+  // change avec la personne, on ne peut pas se contenter de substituer un nom.
+  const askedWhom = action.targetIsMe ? <>t’a demandé</> : <>a demandé à {action.targetName}</>;
 
   switch (action.type) {
     case "ask_letter":
       return (
         <>
-          {actor} asked {target} for{" "}
-          <span className="font-bold text-accent">&apos;{action.letter}&apos;</span> →{" "}
+          {actor} {askedWhom} la lettre{" "}
+          <span className="font-bold text-accent">«&nbsp;{action.letter}&nbsp;»</span> →{" "}
           {action.found ? (
-            <span className="font-bold text-success">Found</span>
+            <span className="font-bold text-success">Trouvée</span>
           ) : (
-            <span className="font-bold text-danger">Not found</span>
+            <span className="font-bold text-danger">Absente</span>
           )}
         </>
       );
@@ -65,11 +68,11 @@ function ActionSentence({ action }: { action: LastAction }) {
     case "guess":
       return (
         <>
-          {actor} guessed <span className="font-bold text-accent">{action.guess}</span> →{" "}
+          {actor} a proposé <span className="font-bold text-accent">{action.guess}</span> →{" "}
           {action.correct ? (
             <span className="font-bold text-success">Correct</span>
           ) : (
-            <span className="font-bold text-danger">Wrong</span>
+            <span className="font-bold text-danger">Faux</span>
           )}
         </>
       );
@@ -77,15 +80,15 @@ function ActionSentence({ action }: { action: LastAction }) {
     case "eliminated":
       return (
         <>
-          {actor} guessed <span className="font-bold">{action.guess}</span> and was{" "}
-          <span className="font-bold text-danger">eliminated</span>
+          {actor} a proposé <span className="font-bold">{action.guess}</span> et a été{" "}
+          <span className="font-bold text-danger">éliminé</span>
         </>
       );
 
     case "turn_skipped":
       return (
         <>
-          {actor} <span className="font-bold text-on-surface-variant">skipped their turn</span>
+          {actor} <span className="font-bold text-on-surface-variant">a passé son tour</span>
         </>
       );
   }

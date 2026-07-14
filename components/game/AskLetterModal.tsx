@@ -41,7 +41,7 @@ export function AskLetterModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Ask a letter"
+      aria-label="Demander une lettre"
       className="fixed inset-0 z-[60] flex items-end justify-center bg-on-background/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
@@ -51,9 +51,9 @@ export function AskLetterModal({
       >
         <div className="text-center">
           <div className="mx-auto mb-6 h-1 w-12 rounded-full bg-surface-container sm:hidden" />
-          <h2 className="mb-2 text-headline-md text-on-surface">Ask a Letter</h2>
+          <h2 className="mb-2 text-headline-md text-on-surface">Demander une lettre</h2>
           <p className="px-4 text-body-md text-on-surface-variant">
-            Choose a letter to reveal. Each letter costs{" "}
+            Choisis une lettre à révéler. Chaque lettre coûte{" "}
             <span className="font-bold text-accent">{cost} points</span>.
           </p>
         </div>
@@ -90,7 +90,7 @@ export function AskLetterModal({
             onClick={onClose}
             className="flex-1 rounded-full border-2 border-outline-variant bg-white py-4 text-label-lg text-on-surface-variant active:scale-95"
           >
-            Cancel
+            Annuler
           </button>
           <button
             type="button"
@@ -98,7 +98,7 @@ export function AskLetterModal({
             onClick={() => selected && onConfirm(selected)}
             className="flex-1 rounded-full bg-accent py-4 text-label-lg text-white shadow-btn-3d transition-all active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba] disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none disabled:active:translate-y-0"
           >
-            {selected ? `Ask for '${selected}'` : "Pick a letter"}
+            {selected ? `Demander « ${selected} »` : "Choisis une lettre"}
           </button>
         </div>
       </div>
