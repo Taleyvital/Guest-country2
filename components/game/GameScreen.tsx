@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Country, CountryTile, GamePlayer, LastAction } from "@/lib/game/types";
+import type { CountryTile, GamePlayer, LastAction } from "@/lib/game/types";
 import { PlayerRail } from "./PlayerRail";
 import { CountryTiles } from "./CountryTiles";
 import { LastActionCard } from "./LastActionCard";
@@ -24,8 +24,6 @@ export type GameScreenProps = {
   totalRounds?: number;
   /** La région de MON pays (que j'ai choisi — donc aucun secret pour moi). */
   regionHint?: string;
-  /** Pool de pays jouables, pour la recherche du guess. */
-  countries?: Country[];
   letterCost?: number;
 
   onAskLetter?: (targetId: string, letter: string) => void;
@@ -42,7 +40,6 @@ export function GameScreen({
   round,
   totalRounds,
   regionHint,
-  countries = [],
   letterCost = 50,
   onAskLetter,
   onGuessCountry,
@@ -164,7 +161,6 @@ export function GameScreen({
             tiles={(validTarget.masked ?? "").split("").map((ch) => ({
               letter: ch === "_" ? null : ch,
             }))}
-            countries={countries}
             playersLeft={uncracked}
             onClose={() => setGuessOpen(false)}
             onConfirm={(guess) => {

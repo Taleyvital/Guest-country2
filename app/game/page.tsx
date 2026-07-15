@@ -4,15 +4,6 @@ import { useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
 import { tilesFromMask, type GamePlayer, type LastAction } from "@/lib/game/types";
 
-const POOL = [
-  { name: "BRESIL", region: "Amérique du Sud" },
-  { name: "ITALIE", region: "Europe" },
-  { name: "JAPON", region: "Asie" },
-  { name: "MAROC", region: "Afrique" },
-  { name: "CANADA", region: "Amérique du Nord" },
-  { name: "SUEDE", region: "Europe" },
-];
-
 /** Démo locale de GameScreen, sans Supabase : sert à valider le rendu et le flux. */
 export default function GameDemoPage() {
   const [players, setPlayers] = useState<GamePlayer[]>([
@@ -103,7 +94,6 @@ export default function GameDemoPage() {
         round={3}
         totalRounds={5}
         regionHint={me.region ?? undefined}
-        countries={POOL}
         onAskLetter={askLetter}
         onGuessCountry={guess}
       />

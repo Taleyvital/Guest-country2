@@ -1,31 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Country, CountryTile } from "@/lib/game/types";
-import { CountryPicker } from "./CountryPicker";
+import type { CountryTile } from "@/lib/game/types";
 
+/**
+ * Deviner le pays d'un adversaire — EN SAISIE LIBRE.
+ *
+ * Plus de liste à choisir : on tape le pays de mémoire, à partir de la région et des
+ * lettres déjà révélées. La validation est faite côté serveur, de façon tolérante aux
+ * accents / à la casse / aux tirets (voir migration 0013), donc "Brésil", "bresil" ou
+ * "BRESIL" sont tous acceptés — seule une VRAIE erreur de pays élimine.
+ */
 export function GuessCountryModal({
   open,
   targetName,
   targetRegion,
   tiles,
-  countries = [],
   playersLeft,
   onClose,
   onConfirm,
 }: {
   open: boolean;
-  /** Le joueur dont on tente d'identifier le pays. */
   targetName: string;
   targetRegion?: string;
-  /** Le pays de la cible, en cours de révélation. */
   tiles: CountryTile[];
-  /**
-   * Le pool jouable. Une mauvaise réponse élimine : laisser saisir du texte libre
-   * ferait perdre une manche sur une faute de frappe ou un accent. On ne valide donc
-   * QUE des pays de la liste — le joueur sélectionne, il ne saisit pas.
-   */
-  countries?: Country[];
   playersLeft?: number;
   onClose: () => void;
   onConfirm: (guess: string) => void;
@@ -44,6 +42,8 @@ export function GuessCountryModal({
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const value = guess.trim();
 
   return (
     <div
@@ -97,11 +97,15 @@ export function GuessCountryModal({
           </div>
         </div>
 
-        <CountryPicker
-          countries={countries}
+        <input
+          autoFocus
           value={guess}
-          onChange={setGuess}
-          placeholder="Chercher un pays…"
+          onChange={(e) => setGuess(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && value && onConfirm(value)}
+          placeholder="Écris le nom du pays…"
+          autoCapitalize="characters"
+          autoComplete="off"
+          className="w-full border-b-4 border-tile bg-transparent py-3 text-center text-headline-md uppercase text-on-surface outline-none transition-colors focus:border-accent"
         />
 
         {playersLeft !== undefined && (
@@ -118,15 +122,13 @@ export function GuessCountryModal({
           >
             Annuler
           </button>
-          {/* `guess` ne peut venir que du picker : c'est forcément un nom exact du
-              pool. Plus de saisie libre, donc plus d'élimination sur une faute de frappe. */}
           <button
             type="button"
-            disabled={!guess}
-            onClick={() => onConfirm(guess)}
+            disabled={!value}
+            onClick={() => onConfirm(value)}
             className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-4 text-label-lg text-white shadow-btn-3d transition-all active:translate-y-[3px] active:shadow-[0_1px_0_0_#4029ba] disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none disabled:active:translate-y-0"
           >
-            {guess ? `Valider : ${guess}` : "Choisis un pays"}
+            Valider
             <span className="material-symbols-outlined">send</span>
           </button>
         </div>

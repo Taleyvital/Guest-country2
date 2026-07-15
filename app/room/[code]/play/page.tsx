@@ -141,7 +141,6 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         round={game.round}
         totalRounds={game.total_rounds}
         regionHint={me.region ?? undefined}
-        countries={countries}
         onBack={() => setLeaveOpen(true)}
         onAskLetter={(targetId, letter) =>
           call("ask_letter", { p_target_player_id: targetId, p_letter: letter })
