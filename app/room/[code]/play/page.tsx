@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
@@ -9,6 +9,7 @@ import { GameScreen } from "@/components/game/GameScreen";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { SuccessCelebration, type GuessResult } from "@/components/game/SuccessCelebration";
 import { EliminatedScreen } from "@/components/game/EliminatedScreen";
+import { CountryFoundScreen } from "@/components/game/CountryFoundScreen";
 import { IntermissionScreen } from "@/components/game/IntermissionScreen";
 import { useGameSoundEffects } from "@/lib/hooks/useGameSoundEffects";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
@@ -72,6 +73,26 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   const nameOf = (playerId?: string | null) =>
     players.find((p) => p.id === playerId)?.nickname ?? "?";
 
+  // "Mon pays vient d'être deviné" : un event 'guess' (correct) qui ME cible. Géré au
+  // niveau page (pas dans le composant) pour survivre au passage en intermission —
+  // à 2 joueurs, le crack termine la manche et l'écran doit rester visible.
+  const [discovered, setDiscovered] = useState<{ by: string; country: string } | null>(null);
+  const discoveredId = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      lastAction?.type === "guess" &&
+      lastAction.target_id === myPlayerId &&
+      lastAction.id !== discoveredId.current
+    ) {
+      discoveredId.current = lastAction.id;
+      setDiscovered({
+        by: nameOf(lastAction.actor_id),
+        country: (lastAction.payload as { guess?: string }).guess ?? "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastAction?.id, myPlayerId]);
+
   // Un seul objet, reconstruit depuis le dernier event : rien ne s'accumule.
   const viewLastAction: LastAction | null = lastAction
     ? {
@@ -113,20 +134,34 @@ export default function PlayPage({ params }: { params: { code: string } }) {
     );
   }
 
+  // "Ton pays a été deviné" : rendu au-dessus de tout, y compris l'intermission
+  // (à 2 joueurs le crack termine la manche, l'écran doit rester visible).
+  const discoveredOverlay = discovered ? (
+    <CountryFoundScreen
+      byName={discovered.by}
+      country={discovered.country}
+      stillPlaying={game.status === "playing" && !me.isEliminated}
+      onClose={() => setDiscovered(null)}
+    />
+  ) : null;
+
   // Entre deux manches : scores + choix du pays, sans quitter l'écran de jeu. La manche
   // suivante démarre seule (le serveur bascule status -> playing quand tous ont choisi).
   if (intermission) {
     return (
-      <IntermissionScreen
-        round={game.round}
-        totalRounds={game.total_rounds}
-        players={players}
-        myUserId={userId}
-        countries={countries}
-        onPick={(country) =>
-          call("pick_country", { p_game_id: game.id, p_country: country })
-        }
-      />
+      <>
+        <IntermissionScreen
+          round={game.round}
+          totalRounds={game.total_rounds}
+          players={players}
+          myUserId={userId}
+          countries={countries}
+          onPick={(country) =>
+            call("pick_country", { p_game_id: game.id, p_country: country })
+          }
+        />
+        {discoveredOverlay}
+      </>
     );
   }
 
@@ -160,6 +195,8 @@ export default function PlayPage({ params }: { params: { code: string } }) {
           setGuessResult(data as GuessResult);
         }}
       />
+
+      {discoveredOverlay}
 
       <SuccessCelebration
         result={guessResult}
