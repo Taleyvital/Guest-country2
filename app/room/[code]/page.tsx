@@ -98,10 +98,13 @@ export default function RoomPage({ params }: { params: { code: string } }) {
   }
 
   // Tous les téléphones basculent ensemble : c'est le `status` en base qui déclenche
-  // la navigation, pas le clic de l'hôte.
+  // la navigation, pas le clic de l'hôte. L'intermission (entre deux manches) se vit
+  // aussi sur l'écran de jeu, pas ici.
   useEffect(() => {
-    if (game?.status === "playing") router.push(`/room/${code}/play`);
-  }, [game?.status, code, router]);
+    if (game?.status === "playing" || game?.intermission) {
+      router.push(`/room/${code}/play`);
+    }
+  }, [game?.status, game?.intermission, code, router]);
 
   if (error && !gameId) {
     return (

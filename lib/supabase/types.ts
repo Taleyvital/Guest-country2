@@ -14,6 +14,8 @@ export type Game = {
   total_rounds: number;
   /** Joueur dont c'est le tour. Source de vérité du tour : le serveur, pas le téléphone. */
   current_player_id: string | null;
+  /** Entre deux manches : chacun rechoisit son pays, la manche suivante démarre seule. */
+  intermission: boolean;
   host_id: string | null;
   created_at: string;
   started_at: string | null;

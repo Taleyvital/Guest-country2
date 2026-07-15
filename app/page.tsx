@@ -11,7 +11,7 @@ import { errorMessage } from "@/lib/errors";
 import type { Game } from "@/lib/supabase/types";
 
 /** Une partie où ce téléphone a déjà une place. */
-type ActiveGame = { code: string; status: string; round: number };
+type ActiveGame = { code: string; status: string; round: number; intermission: boolean };
 
 export default function Home() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function Home() {
         // sans lui je récupérerais la ligne d'un autre.
         const { data } = await supabase
           .from("players")
-          .select("games(code, status, round)")
+          .select("games(code, status, round, intermission)")
           .eq("user_id", session.user.id)
           .order("joined_at", { ascending: false })
           .limit(1)
@@ -139,7 +139,9 @@ export default function Home() {
           type="button"
           onClick={() =>
             router.push(
-              active.status === "playing"
+              // En jeu OU en intermission (entre deux manches) : on reprend sur
+              // l'écran de jeu, pas le salon initial.
+              active.status === "playing" || active.intermission
                 ? `/room/${active.code}/play`
                 : `/room/${active.code}`,
             )
@@ -149,7 +151,9 @@ export default function Home() {
           <span className="text-label-md uppercase tracking-widest">Partie en cours</span>
           <p className="text-body-lg">
             Reprendre <span className="font-bold">#{active.code}</span>
-            {active.status === "playing" ? ` · manche ${active.round}` : " · en attente"}
+            {active.status === "playing" || active.intermission
+              ? ` · manche ${active.round}`
+              : " · en attente"}
           </p>
         </button>
       )}

@@ -9,6 +9,7 @@ import { GameScreen } from "@/components/game/GameScreen";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { SuccessCelebration, type GuessResult } from "@/components/game/SuccessCelebration";
 import { EliminatedScreen } from "@/components/game/EliminatedScreen";
+import { IntermissionScreen } from "@/components/game/IntermissionScreen";
 import { useGameSoundEffects } from "@/lib/hooks/useGameSoundEffects";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
@@ -95,17 +96,37 @@ export default function PlayPage({ params }: { params: { code: string } }) {
     if (e) setError(errorMessage(e));
   }, []);
 
-  // La manche/partie a basculé : tous les téléphones suivent l'état en base.
+  const intermission = Boolean(game?.intermission);
+
+  // La partie a basculé : tous les téléphones suivent l'état en base. On ne renvoie au
+  // salon QUE si ce n'est pas une intermission (sinon on reste ici pour l'enchaînement).
   useEffect(() => {
-    if (game?.status === "lobby") router.push(`/room/${code}`);
     if (game?.status === "finished") router.push(`/room/${code}/results`);
-  }, [game?.status, code, router]);
+    else if (game?.status === "lobby" && !game.intermission) router.push(`/room/${code}`);
+  }, [game?.status, game?.intermission, code, router]);
 
   if (!game || !me) {
     return (
       <main className="screen flex min-h-dvh items-center justify-center">
         <p className="text-body-lg text-on-surface-variant">Chargement de la partie…</p>
       </main>
+    );
+  }
+
+  // Entre deux manches : scores + choix du pays, sans quitter l'écran de jeu. La manche
+  // suivante démarre seule (le serveur bascule status -> playing quand tous ont choisi).
+  if (intermission) {
+    return (
+      <IntermissionScreen
+        round={game.round}
+        totalRounds={game.total_rounds}
+        players={players}
+        myUserId={userId}
+        countries={countries}
+        onPick={(country) =>
+          call("pick_country", { p_game_id: game.id, p_country: country })
+        }
+      />
     );
   }
 
