@@ -167,7 +167,13 @@ function SaveProfileCard() {
     setState("sending");
 
     const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.updateUser({ email: email.trim() });
+    // Le lien de confirmation revient sur le domaine COURANT (Vercel en prod,
+    // localhost en dev), pas sur un Site URL figé. Ce domaine doit tout de même
+    // figurer dans Supabase > Auth > URL Configuration > Redirect URLs.
+    const { error } = await supabase.auth.updateUser(
+      { email: email.trim() },
+      { emailRedirectTo: window.location.origin },
+    );
 
     if (error) {
       setState("error");
