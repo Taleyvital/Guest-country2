@@ -67,6 +67,7 @@ check("la région est publique", all(p["region"] for p in players))
 
 # --- le pays des autres est-il vraiment inaccessible ?
 leak = sel("player_secrets?select=*", tok[1])
+# 401 ou 403 : dans les deux cas le client est bloqué (403 = interdit franc).
 check("player_secrets est inaccessible au client", isinstance(leak, dict) and "__error" in leak, leak)
 
 # --- lancement (hôte = Alice)
