@@ -8,6 +8,7 @@ import { errorMessage } from "@/lib/errors";
 import { GameScreen } from "@/components/game/GameScreen";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { SuccessCelebration, type GuessResult } from "@/components/game/SuccessCelebration";
+import { EliminatedScreen } from "@/components/game/EliminatedScreen";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
 export default function PlayPage({ params }: { params: { code: string } }) {
@@ -21,6 +22,9 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [guessResult, setGuessResult] = useState<GuessResult | null>(null);
   const [guessedName, setGuessedName] = useState<string>();
+  // Le serveur ne renvoie pas le guess sur un échec (il tairait le bon pays) : on
+  // garde donc ce que le joueur a proposé pour l'afficher sur l'écran d'élimination.
+  const [lastGuess, setLastGuess] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -124,9 +128,10 @@ export default function PlayPage({ params }: { params: { code: string } }) {
           });
           if (e) return setError(errorMessage(e));
 
-          // Les chiffres de la célébration viennent du serveur : le client ne
-          // recalcule pas le barème, il l'afficherait faux à la première évolution.
+          // Les chiffres viennent du serveur : le client ne recalcule pas le barème,
+          // il l'afficherait faux à la première évolution.
           setGuessedName(viewPlayers.find((p) => p.id === targetId)?.name);
+          setLastGuess(guess);
           setGuessResult(data as GuessResult);
         }}
       />
@@ -135,6 +140,19 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         result={guessResult}
         targetName={guessedName}
         onClose={() => setGuessResult(null)}
+      />
+
+      <EliminatedScreen
+        result={guessResult}
+        guess={lastGuess}
+        targetName={guessedName}
+        playersLeft={viewPlayers.filter((p) => !p.isCracked && !p.isMe).length}
+        // Rester regarder : on ferme l'overlay, on reste sur l'écran de jeu.
+        onSpectate={() => setGuessResult(null)}
+        onLeave={async () => {
+          await call("leave_game", { p_game_id: game.id });
+          router.push("/");
+        }}
       />
 
       <LeaveDialog
