@@ -9,6 +9,7 @@ import { GameScreen } from "@/components/game/GameScreen";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { SuccessCelebration, type GuessResult } from "@/components/game/SuccessCelebration";
 import { EliminatedScreen } from "@/components/game/EliminatedScreen";
+import { useGameSoundEffects } from "@/lib/hooks/useGameSoundEffects";
 import { tilesFromMask, type Country, type GamePlayer, type LastAction } from "@/lib/game/types";
 
 export default function PlayPage({ params }: { params: { code: string } }) {
@@ -62,6 +63,10 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   const me = viewPlayers.find((p) => p.isMe) ?? null;
   const myPlayerId = me?.id ?? null;
   const currentTurnPlayer = viewPlayers.find((p) => p.id === game?.current_player_id) ?? null;
+
+  // Sons de jeu, branchés sur les transitions Realtime. Observe l'état, ne s'abonne
+  // à rien (une seule socket, celle de useGameChannel).
+  useGameSoundEffects({ game, players, lastAction, myPlayerId });
 
   const nameOf = (playerId?: string | null) =>
     players.find((p) => p.id === playerId)?.nickname ?? "?";

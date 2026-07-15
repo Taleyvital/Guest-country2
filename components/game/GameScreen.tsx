@@ -8,6 +8,7 @@ import { LastActionCard } from "./LastActionCard";
 import { ActionBar } from "./ActionBar";
 import { AskLetterModal } from "./AskLetterModal";
 import { GuessCountryModal } from "./GuessCountryModal";
+import { SoundToggle } from "./SoundToggle";
 
 export type GameScreenProps = {
   /** Joueur dont c'est le tour. `null` = partie en pause / transition. */
@@ -89,7 +90,7 @@ export function GameScreen({
               Manche {round}/{totalRounds}
             </h1>
           )}
-          <div className="w-10" />
+          <SoundToggle />
         </div>
       </header>
 

@@ -7,6 +7,7 @@ import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import { errorMessage } from "@/lib/errors";
 import { CountryPicker } from "@/components/game/CountryPicker";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
+import { PushPermission } from "@/components/PushPermission";
 import type { Country } from "@/lib/game/types";
 
 export default function RoomPage({ params }: { params: { code: string } }) {
@@ -170,6 +171,10 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           </p>
         )}
       </section>
+
+      {/* Permission notifications proposée ICI : on vient de rejoindre, être prévenu
+          de son tour prend tout son sens. Se masque seule si refusée/non supportée. */}
+      <PushPermission />
 
       <ul className="flex flex-col gap-2">
         {players.map((p) => {
