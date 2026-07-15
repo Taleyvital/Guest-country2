@@ -155,6 +155,18 @@ final = sel(f"players?game_id=eq.{gid}&select=nickname,score&order=score.desc", 
 print("\nClassement final :", [(p["nickname"], p["score"]) for p in final])
 check("le vainqueur est celui qui a le plus de points", final[0]["score"] >= final[1]["score"])
 
+print("\n--- COMPTEURS DE PARTIE (résumé)")
+pl = sel(f"players?game_id=eq.{gid}&select=nickname,found_count,guess_count,letters_count&order=seat", tok[0])
+byname = {p["nickname"]: p for p in pl}
+if all(k in (byname.get("Bob") or {}) for k in ("found_count","guess_count","letters_count")):
+    b = byname["Bob"]
+    check("Bob a 2 pays trouvés (compteur partie)", b["found_count"] == 2, b)
+    check("les questions de Bob sont comptées", b["letters_count"] >= 1, b)
+    a = byname["Alice"]
+    check("la tentative ratée d'Alice est comptée", a["guess_count"] >= 1, a)
+else:
+    check("compteurs de partie présents (migration 0010)", False, "colonnes absentes — applique 0010")
+
 print("\n--- PROFIL & DÉCOUVERTES")
 st = sel("player_stats?select=*", tok[1])
 check("les stats de Bob existent", isinstance(st, list) and len(st) == 1, st)

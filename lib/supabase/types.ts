@@ -52,6 +52,14 @@ export type Player = {
   letters_left: number;
   /** A choisi son pays : condition pour lancer la partie. */
   has_picked: boolean;
+
+  // --- Compteurs de partie (cumulés sur toutes les manches, pour le résumé). ---
+  /** Pays devinés durant cette partie. */
+  found_count: number;
+  /** Tentatives d'identification (justes + ratées). */
+  guess_count: number;
+  /** Lettres demandées durant cette partie. */
+  letters_count: number;
 };
 
 export type GameEvent = {

@@ -8,6 +8,25 @@ import { errorMessage } from "@/lib/errors";
 import type { Player } from "@/lib/supabase/types";
 import { isPhoto } from "@/lib/game/avatar";
 
+/** Petite pastille avatar réutilisée partout dans le résumé. */
+function Avatar({ player, size = 40 }: { player: Player; size?: number }) {
+  const s = `${size}px`;
+  if (isPhoto(player.avatar)) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={player.avatar!}
+        alt=""
+        style={{ width: s, height: s }}
+        className="rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <span style={{ fontSize: `${size * 0.7}px`, lineHeight: 1 }}>{player.avatar ?? "🌍"}</span>
+  );
+}
+
 export default function ResultsPage({ params }: { params: { code: string } }) {
   const router = useRouter();
   const code = params.code.toUpperCase();
@@ -29,51 +48,54 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
   const { players } = useGameChannel(gameId);
   const ranking = [...players].sort((a, b) => b.score - a.score);
 
-  // Le podium de la maquette est ordonné 2 – 1 – 3 : le vainqueur au centre, surélevé.
+  // Podium ordonné 2 – 1 – 3 : le vainqueur au centre, surélevé.
   const [first, second, third] = ranking;
   const podium = [second, first, third].filter(Boolean);
 
   const me = ranking.find((p) => p.user_id === userId);
   const myRank = me ? ranking.indexOf(me) + 1 : null;
 
+  const highlights = computeHighlights(players);
+
   return (
-    <main className="screen flex min-h-dvh flex-col gap-6 py-10">
+    <main className="screen flex min-h-dvh flex-col gap-6 py-8">
       <header className="text-center">
-        <h1 className="text-headline-lg-mobile">Résultats</h1>
         <p className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-          #{code}
+          Partie terminée
         </p>
+        <h1 className="text-headline-lg-mobile">Résumé</h1>
+        <p className="text-label-md text-on-surface-variant">#{code}</p>
       </header>
 
-      {podium.length > 0 && (
+      {/* Bandeau vainqueur : la première chose qu'on veut voir. */}
+      {first && (
+        <section className="flex flex-col items-center gap-2 rounded-2xl bg-success p-6 text-center text-white shadow-card">
+          <span className="material-symbols-outlined text-[40px]">emoji_events</span>
+          <Avatar player={first} size={56} />
+          <span className="text-headline-md">{first.nickname}</span>
+          <span className="text-label-lg uppercase tracking-widest opacity-90">
+            Vainqueur · {first.score} pts
+          </span>
+        </section>
+      )}
+
+      {podium.length > 1 && (
         <section className="flex items-end justify-center gap-3">
           {podium.map((p) => {
             const rank = ranking.indexOf(p) + 1;
             const isFirst = rank === 1;
             return (
               <div key={p.id} className="flex flex-1 flex-col items-center gap-2">
-                {isPhoto(p.avatar) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.avatar!}
-                    alt=""
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="text-[32px]">{p.avatar ?? "🌍"}</span>
-                )}
+                <Avatar player={p} size={isFirst ? 44 : 36} />
                 <span className="max-w-full truncate text-label-lg">{p.nickname}</span>
                 <div
                   className={[
                     "flex w-full flex-col items-center justify-end rounded-t-xl px-2 pb-3 pt-2",
                     isFirst
-                      ? "h-32 bg-success text-white"
-                      : "h-24 bg-surface-container-high text-on-surface",
+                      ? "h-28 bg-success text-white"
+                      : "h-20 bg-surface-container-high text-on-surface",
                   ].join(" ")}
                 >
-                  {isFirst && (
-                    <span className="material-symbols-outlined">emoji_events</span>
-                  )}
                   <span className="text-headline-md">{rank}</span>
                   <span className="text-label-md">{p.score} pts</span>
                 </div>
@@ -83,15 +105,40 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
         </section>
       )}
 
+      {/* Faits marquants : ce qui rend un résumé vivant, au-delà du classement. */}
+      {highlights.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+            Faits marquants
+          </h2>
+          <div className="flex flex-col gap-2">
+            {highlights.map((h) => (
+              <div
+                key={h.key}
+                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-card"
+              >
+                <span className="text-[24px]">{h.emoji}</span>
+                <div className="flex-1">
+                  <p className="text-body-lg font-bold">{h.title}</p>
+                  <p className="text-label-md text-on-surface-variant">{h.detail}</p>
+                </div>
+                <Avatar player={h.player} size={32} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Détail par joueur : les chiffres de LA partie (cumul des manches). */}
       <section className="flex flex-col gap-2">
         <h2 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
-          Classement complet
+          Détail par joueur
         </h2>
-        <ol className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-2">
           {ranking.map((p, i) => (
-            <RankRow key={p.id} player={p} rank={i + 1} isMe={p.user_id === userId} />
+            <PlayerCard key={p.id} player={p} rank={i + 1} isMe={p.user_id === userId} />
           ))}
-        </ol>
+        </ul>
       </section>
 
       {myRank && myRank > 3 && (
@@ -124,32 +171,87 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
   );
 }
 
-function RankRow({ player, rank, isMe }: { player: Player; rank: number; isMe: boolean }) {
+function PlayerCard({ player, rank, isMe }: { player: Player; rank: number; isMe: boolean }) {
+  // Précision de la partie : trouvailles sur tentatives. Null si aucune tentative,
+  // pour ne pas afficher "0%" à qui n'a jamais osé deviner.
+  const accuracy =
+    player.guess_count > 0 ? Math.round((player.found_count / player.guess_count) * 100) : null;
+
   return (
     <li
       className={[
-        "flex items-center justify-between rounded-lg p-4 shadow-card",
+        "flex flex-col gap-2 rounded-xl p-4 shadow-card",
         isMe ? "border-2 border-accent bg-white" : "bg-white",
       ].join(" ")}
     >
-      <span className="flex items-center gap-3">
-        <span className="w-6 text-label-lg text-on-surface-variant">{rank}</span>
-        {isPhoto(player.avatar) ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={player.avatar!} alt="" className="h-8 w-8 rounded-full object-cover" />
-        ) : (
-          <span className="text-[20px]">{player.avatar ?? "🌍"}</span>
-        )}
-        <span className="text-body-lg">{player.nickname}</span>
+      <div className="flex items-center gap-3">
+        <span className="w-6 text-center text-label-lg text-on-surface-variant">{rank}</span>
+        <Avatar player={player} size={32} />
+        <span className="flex-1 text-body-lg font-bold">{player.nickname}</span>
         {isMe && (
           <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-label-md text-on-primary-fixed">
             Toi
           </span>
         )}
-      </span>
-      <span className="text-headline-md">{player.score} pts</span>
+        <span className="text-headline-md">{player.score}</span>
+      </div>
+
+      <div className="flex gap-2 pl-9 text-label-md text-on-surface-variant">
+        <span title="Pays trouvés">🌍 {player.found_count}</span>
+        <span title="Questions posées">❓ {player.letters_count}</span>
+        {accuracy !== null && <span title="Précision">🎯 {accuracy}%</span>}
+      </div>
     </li>
   );
+}
+
+type Highlight = { key: string; emoji: string; title: string; detail: string; player: Player };
+
+/** Récompenses honorifiques dérivées des compteurs de partie. */
+function computeHighlights(players: Player[]): Highlight[] {
+  if (players.length === 0) return [];
+  const out: Highlight[] = [];
+
+  // Meilleur limier : le plus de pays trouvés (au moins 1).
+  const topFinder = [...players].sort((a, b) => b.found_count - a.found_count)[0];
+  if (topFinder && topFinder.found_count > 0) {
+    out.push({
+      key: "finder",
+      emoji: "🔍",
+      title: "Meilleur limier",
+      detail: `${topFinder.found_count} pays devinés`,
+      player: topFinder,
+    });
+  }
+
+  // Déduction la plus fine : le moins de questions par pays trouvé (min 1 trouvaille).
+  const deducers = players.filter((p) => p.found_count > 0);
+  if (deducers.length > 0) {
+    const sharp = deducers.sort(
+      (a, b) => a.letters_count / a.found_count - b.letters_count / b.found_count,
+    )[0];
+    out.push({
+      key: "sharp",
+      emoji: "⚡",
+      title: "Déduction la plus fine",
+      detail: `${(sharp.letters_count / sharp.found_count).toFixed(1)} questions par pays`,
+      player: sharp,
+    });
+  }
+
+  // Casse-cou : le plus de tentatives (osé, quitte à se tromper).
+  const bold = [...players].sort((a, b) => b.guess_count - a.guess_count)[0];
+  if (bold && bold.guess_count > 1) {
+    out.push({
+      key: "bold",
+      emoji: "🎲",
+      title: "Le plus audacieux",
+      detail: `${bold.guess_count} tentatives`,
+      player: bold,
+    });
+  }
+
+  return out;
 }
 
 /**
