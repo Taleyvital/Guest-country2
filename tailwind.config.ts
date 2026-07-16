@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 // Tokens repris de stitch_country_guess_mobile_game/country_guess_system/DESIGN.md
 const config: Config = {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
+    "./games/**/*.{ts,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
