@@ -62,8 +62,13 @@ function PlayerCard({
         )}
       </div>
 
-      <span className="max-w-full truncate text-label-lg">
+      <span className="flex max-w-full items-center gap-1 truncate text-label-lg">
         {player.isMe ? "Toi" : player.name}
+        {player.isBot && (
+          <span className="rounded-full bg-surface-container-high px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">
+            Bot
+          </span>
+        )}
       </span>
 
       {/* Le pays en cours de révélation : c'est l'information de jeu, pas un ornement. */}

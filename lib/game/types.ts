@@ -15,6 +15,7 @@ export type GamePlayer = {
   lettersLeft: number;
   isMe?: boolean;
   isEliminated?: boolean;
+  isBot?: boolean;
 
   /** Son pays, tel que la table l'a découvert : "BRA___". */
   masked?: string;

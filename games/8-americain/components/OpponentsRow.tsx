@@ -35,7 +35,7 @@ export function OpponentsRow({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={p.avatar!} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  p.avatar ?? "🙂"
+                  p.avatar ?? (p.is_bot ? "🤖" : "🙂")
                 )}
               </span>
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-2 py-0.5 text-label-md text-white shadow-card">
@@ -43,7 +43,14 @@ export function OpponentsRow({
               </span>
             </div>
 
-            <span className="text-body-md font-bold">{p.nickname}</span>
+            <span className="flex items-center gap-1 text-body-md font-bold">
+              {p.nickname}
+              {p.is_bot && (
+                <span className="rounded-full bg-surface-container-high px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">
+                  Bot
+                </span>
+              )}
+            </span>
           </li>
         );
       })}

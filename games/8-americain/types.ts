@@ -46,6 +46,8 @@ export type AmericainPlayer = {
   /** Pénalité cumulée sur toute la partie. Le plus bas gagne. */
   penalty_score: number;
   joined_at: string;
+  /** Joueur artificiel : ses coups sont joués côté serveur (resolve-bot-turn). */
+  is_bot: boolean;
 };
 
 export type AmericainHand = {

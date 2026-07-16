@@ -45,6 +45,10 @@ export function errorMessage(e: unknown): string {
     "card not playable": "Cette carte ne peut pas être jouée maintenant.",
     "must choose a color for the 8": "Choisis une couleur pour le 8.",
     "no cards left to draw": "Plus aucune carte à piocher.",
+
+    // --- Bots ---
+    "only the host can fill with bots": "Seul l’hôte peut compléter avec des bots.",
+    "invalid player count": "Nombre de joueurs invalide.",
   };
 
   for (const [needle, message] of Object.entries(known)) {

@@ -54,6 +54,9 @@ export type Player = {
   letters_left: number;
   /** A choisi son pays : condition pour lancer la partie. */
   has_picked: boolean;
+  /** Joueur artificiel (mode "compléter avec des bots") : ses coups sont joués
+   *  côté serveur par l'Edge Function resolve-bot-turn. */
+  is_bot: boolean;
   /** Résultat du dé (1-6) qui décide qui commence la partie. Null tant qu'il n'a pas lancé. */
   dice_roll: number | null;
 

@@ -84,6 +84,15 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
     if (e) setError(errorMessage(e));
   }
 
+  // Complète jusqu'à max_players avec des bots déjà prêts.
+  async function fillWithBots() {
+    if (!gameId) return;
+    const { error: e } = await supabase.rpc("fill_americain_lobby_with_bots", {
+      p_game_id: gameId,
+    });
+    if (e) setError(errorMessage(e));
+  }
+
   async function playCard(card: Card, chosenColor?: Suit) {
     if (!gameId) return;
     if (rankOf(card) === "8" && !chosenColor) {
@@ -200,7 +209,50 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
         </p>
       </header>
 
+      <ul className="flex flex-col gap-2">
+        {players.map((p) => {
+          const online = onlineUserIds.includes(p.user_id);
+          return (
+            <li
+              key={p.id}
+              className="flex items-center justify-between rounded-lg bg-white p-4 shadow-card"
+            >
+              <span className="flex items-center gap-2 text-body-lg">
+                <span
+                  className={`h-2 w-2 rounded-full ${online ? "bg-success" : "bg-tile"}`}
+                  title={online ? "Connecté" : "Déconnecté"}
+                />
+                {p.nickname}
+                {p.is_host && (
+                  <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-label-md text-on-primary-fixed">
+                    Hôte
+                  </span>
+                )}
+                {p.is_bot && (
+                  <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-label-md text-on-surface-variant">
+                    Bot
+                  </span>
+                )}
+              </span>
+              <span className={p.is_ready ? "text-label-lg text-success" : "text-label-lg text-on-surface-variant"}>
+                {p.is_ready ? "Prêt" : "En attente…"}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
       <div className="mt-auto flex flex-col gap-3">
+        {isHost && players.length < (game?.max_players ?? 6) && (
+          <button
+            type="button"
+            onClick={fillWithBots}
+            className="w-full rounded-full border-2 border-dashed border-outline-variant py-3 text-label-lg text-on-surface-variant active:scale-95"
+          >
+            Compléter avec des bots
+          </button>
+        )}
+
         <button
           type="button"
           onClick={toggleReady}

@@ -65,6 +65,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
     lettersLeft: p.letters_left,
     isMe: p.user_id === userId,
     isEliminated: p.is_eliminated,
+    isBot: p.is_bot,
     masked: p.masked,
     region: p.region,
     askedLetters: p.asked_letters,

@@ -107,6 +107,18 @@ export default function RoomPage({ params }: { params: { code: string } }) {
     if (e) setError(errorMessage(e));
   }
 
+  // Remplit les places manquantes avec des bots déjà prêts à jouer (pays
+  // choisi, dé lancé) : pas besoin d'attendre qu'ils cliquent quoi que ce soit.
+  async function fillWithBots() {
+    if (!gameId) return;
+    const target = Math.max(players.length + 1, 4);
+    const { error: e } = await supabase.rpc("fill_lobby_with_bots", {
+      p_game_id: gameId,
+      p_target_players: target,
+    });
+    if (e) setError(errorMessage(e));
+  }
+
   // Tous les téléphones basculent ensemble : c'est le `status` en base qui déclenche
   // la navigation, pas le clic de l'hôte. L'intermission (entre deux manches) se vit
   // aussi sur l'écran de jeu, pas ici.
@@ -214,6 +226,11 @@ export default function RoomPage({ params }: { params: { code: string } }) {
                     Hôte
                   </span>
                 )}
+                {p.is_bot && (
+                  <span className="rounded-full bg-surface-container-high px-2 py-0.5 text-label-md text-on-surface-variant">
+                    Bot
+                  </span>
+                )}
               </span>
               <span className="flex items-center gap-2 text-label-lg">
                 {/* Le pays des autres n'est jamais affiché — seulement le fait qu'ils
@@ -245,6 +262,16 @@ export default function RoomPage({ params }: { params: { code: string } }) {
         >
           {me?.is_ready ? "Plus prêt" : "Je suis prêt"}
         </button>
+
+        {isHost && players.length < 8 && (
+          <button
+            type="button"
+            onClick={fillWithBots}
+            className="w-full rounded-full border-2 border-dashed border-outline-variant py-3 text-label-lg text-on-surface-variant active:scale-95"
+          >
+            Compléter avec des bots
+          </button>
+        )}
 
         {isHost && (
           <button
