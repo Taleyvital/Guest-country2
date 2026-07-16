@@ -24,3 +24,31 @@ export function isPlayable(card: Card, currentColor: Suit | null, topCard: strin
 }
 
 export const SUIT_LABEL: Record<Suit, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
+
+/** Étiquette affichée sur la carte : les figures suivent la convention française
+ *  (Valet/Dame/Roi), pas l'anglaise (J/Q/K) — cohérent avec le "8 Américain". */
+export const RANK_LABEL: Record<string, string> = {
+  J: "V",
+  Q: "D",
+  K: "R",
+  A: "A",
+};
+
+export function rankLabel(card: Card): string {
+  const rank = rankOf(card);
+  return RANK_LABEL[rank] ?? rank;
+}
+
+/** Les cartes à effet ont un pictogramme dédié, pour les repérer d'un coup
+ *  d'oeil dans la main — comme sur un jeu de type Uno. */
+export const EFFECT_ICON: Record<string, string> = {
+  "8": "palette",      // joker de couleur
+  "10": "sync_alt",    // inverse le sens
+  J: "skip_next",      // saute le joueur suivant
+  A: "block",          // saute + fait piocher 1
+  "2": "bolt",         // saute + fait piocher 3
+};
+
+export function effectIcon(card: Card): string | null {
+  return EFFECT_ICON[rankOf(card)] ?? null;
+}

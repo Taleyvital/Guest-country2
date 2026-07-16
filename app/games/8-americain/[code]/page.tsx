@@ -8,9 +8,12 @@ import { useAmericainChannel } from "@/games/8-americain/realtime";
 import { rankOf } from "@/games/8-americain/engine";
 import { Hand } from "@/games/8-americain/components/Hand";
 import { DiscardPile } from "@/games/8-americain/components/DiscardPile";
+import { DrawPile } from "@/games/8-americain/components/DrawPile";
 import { ColorPickerModal } from "@/games/8-americain/components/ColorPickerModal";
 import { Scoreboard } from "@/games/8-americain/components/Scoreboard";
 import { OpponentsRow } from "@/games/8-americain/components/OpponentsRow";
+import { RoomHeader } from "@/games/8-americain/components/RoomHeader";
+import { TurnBanner } from "@/games/8-americain/components/TurnBanner";
 import type { Card, Suit } from "@/games/8-americain/types";
 
 export default function AmericainRoomPage({ params }: { params: { code: string } }) {
@@ -39,7 +42,10 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
     })();
   }, [code]);
 
-  const { game, players, myHand, onlineUserIds, status } = useAmericainChannel(gameId, myPlayerId);
+  const { game, players, myHand, onlineUserIds, status, refresh } = useAmericainChannel(
+    gameId,
+    myPlayerId,
+  );
 
   const me = players.find((p) => p.user_id === userId) ?? null;
 
@@ -51,6 +57,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   const isHost = Boolean(me?.is_host);
   const everyoneReady = players.length >= 2 && players.every((p) => p.is_ready);
   const isMyTurn = Boolean(me && game?.current_player_id === me.id);
+  const currentPlayer = players.find((p) => p.id === game?.current_player_id) ?? null;
 
   async function toggleReady() {
     if (!me) return;
@@ -108,6 +115,44 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
     );
   }
 
+  if (game?.status === "playing") {
+    return (
+      <main className="screen flex min-h-dvh flex-col gap-8 bg-surface-container-low pb-8">
+        <RoomHeader code={code} round={game.round} onRefresh={refresh} />
+
+        <OpponentsRow
+          players={players}
+          currentPlayerId={game.current_player_id}
+          onlineUserIds={onlineUserIds}
+          myUserId={userId}
+        />
+
+        <div className="flex flex-1 items-center justify-center gap-8">
+          <DiscardPile topCard={game.top_card} currentColor={game.current_color} />
+          <DrawPile count={game.deck_count} canDraw={isMyTurn} onDraw={draw} />
+        </div>
+
+        <TurnBanner isMyTurn={isMyTurn} currentName={currentPlayer?.nickname ?? "…"} />
+
+        <Hand
+          cards={myHand}
+          isMyTurn={isMyTurn}
+          currentColor={game.current_color}
+          topCard={game.top_card}
+          onPlay={(card) => playCard(card)}
+        />
+
+        {error && (
+          <p role="alert" className="text-center text-body-md text-danger">
+            {error}
+          </p>
+        )}
+
+        {pendingEight && <ColorPickerModal onPick={(suit) => playCard(pendingEight, suit)} />}
+      </main>
+    );
+  }
+
   return (
     <main className="screen flex min-h-dvh flex-col gap-6 py-6">
       <header className="text-center">
@@ -117,85 +162,39 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
         <p className="text-display-lg tracking-widest text-accent">{code}</p>
         <p className="text-body-md text-on-surface-variant">
           {status === "live" ? `${players.length}/${game?.max_players ?? "?"} joueurs` : "Connexion…"}
-          {game && game.round > 1 ? ` · Manche ${game.round}` : ""}
         </p>
       </header>
 
-      {game?.status === "playing" && (
-        <>
-          <Scoreboard players={players} threshold={game.penalty_threshold} myUserId={userId} />
+      <div className="mt-auto flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={toggleReady}
+          disabled={!me}
+          className="w-full rounded-full border-2 border-accent bg-white py-4 text-label-lg text-accent active:scale-95 disabled:border-tile disabled:text-outline"
+        >
+          {me?.is_ready ? "Plus prêt" : "Je suis prêt"}
+        </button>
 
-          <OpponentsRow
-            players={players}
-            currentPlayerId={game.current_player_id}
-            onlineUserIds={onlineUserIds}
-            myUserId={userId}
-          />
-
-          <div className="flex justify-center">
-            <DiscardPile topCard={game.top_card} currentColor={game.current_color} />
-          </div>
-
-          <Hand
-            cards={myHand}
-            isMyTurn={isMyTurn}
-            currentColor={game.current_color}
-            topCard={game.top_card}
-            onPlay={(card) => playCard(card)}
-          />
-
-          {isMyTurn && (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={draw}
-                className="rounded-full border-2 border-accent bg-white px-6 py-3 text-label-lg text-accent active:scale-95"
-              >
-                Piocher
-              </button>
-            </div>
-          )}
-        </>
-      )}
-
-      {game?.status === "lobby" && (
-        <div className="mt-auto flex flex-col gap-3">
+        {isHost && (
           <button
             type="button"
-            onClick={toggleReady}
-            disabled={!me}
-            className="w-full rounded-full border-2 border-accent bg-white py-4 text-label-lg text-accent active:scale-95 disabled:border-tile disabled:text-outline"
+            onClick={startGame}
+            disabled={!everyoneReady}
+            className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
           >
-            {me?.is_ready ? "Plus prêt" : "Je suis prêt"}
+            {everyoneReady
+              ? "Lancer la partie"
+              : players.length < 2
+                ? "Il faut au moins 2 joueurs"
+                : "Tout le monde doit être prêt"}
           </button>
-
-          {isHost && (
-            <button
-              type="button"
-              onClick={startGame}
-              disabled={!everyoneReady}
-              className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:bg-tile disabled:text-outline disabled:shadow-none"
-            >
-              {everyoneReady
-                ? "Lancer la partie"
-                : players.length < 2
-                  ? "Il faut au moins 2 joueurs"
-                  : "Tout le monde doit être prêt"}
-            </button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {error && (
         <p role="alert" className="text-center text-body-md text-danger">
           {error}
         </p>
-      )}
-
-      {pendingEight && (
-        <ColorPickerModal
-          onPick={(suit) => playCard(pendingEight, suit)}
-        />
       )}
     </main>
   );

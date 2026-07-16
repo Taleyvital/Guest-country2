@@ -43,6 +43,13 @@ export default function AmericainHome() {
       if (rpcError) throw rpcError;
 
       const game = data as unknown as AmericainGame;
+
+      // L'avatar (emoji ou photo) n'est pas posé par la RPC : il vient du profil
+      // local, pas du salon. Sans ça, OpponentsRow n'aurait rien à afficher.
+      // La policy "update own row" (user_id = auth.uid()) suffit à scoper l'update
+      // à SA propre ligne, comme pour le jeu principal.
+      await supabase.from("americain_players").update({ avatar: profile.avatar }).eq("game_id", game.id);
+
       router.push(`/games/8-americain/${game.code}`);
     } catch (e) {
       setError(errorMessage(e));

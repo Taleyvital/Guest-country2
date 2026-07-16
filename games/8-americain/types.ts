@@ -23,6 +23,8 @@ export type AmericainGame = {
   /** Couleur demandée en ce moment (celle de top_card, ou choisie via un 8). */
   current_color: Suit | null;
   top_card: string | null;
+  /** Cartes restantes dans la pioche : public, jamais leur ordre (americain_state). */
+  deck_count: number;
   round: number;
   next_dealer_seat: number;
   created_at: string;
