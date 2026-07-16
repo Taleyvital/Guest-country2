@@ -28,6 +28,10 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   // Le serveur ne renvoie pas le guess sur un échec (il tairait le bon pays) : on
   // garde donc ce que le joueur a proposé pour l'afficher sur l'écran d'élimination.
   const [lastGuess, setLastGuess] = useState("");
+  // Le pays QUE J'AI CHOISI. Ce n'est un secret pour personne d'autre que moi — je le
+  // connais déjà — donc rien n'empêche de me le réafficher à la demande plutôt que de
+  // me forcer à m'en souvenir toute la manche.
+  const [myCountry, setMyCountry] = useState<string | undefined>();
 
   useEffect(() => {
     (async () => {
@@ -40,7 +44,12 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         supabase.from("countries").select("name, region").order("name"),
       ]);
 
-      if (game.data) setGameId(game.data.id as string);
+      if (game.data) {
+        const id = game.data.id as string;
+        setGameId(id);
+        const mine = await supabase.rpc("my_country", { p_game_id: id });
+        if (mine.data) setMyCountry(mine.data as string);
+      }
       setCountries((pool.data as Country[]) ?? []);
     })();
   }, [code]);
@@ -160,9 +169,12 @@ export default function PlayPage({ params }: { params: { code: string } }) {
           players={players}
           myUserId={userId}
           countries={countries}
-          onPick={(country) =>
-            call("pick_country", { p_game_id: game.id, p_country: country })
-          }
+          onPick={async (country) => {
+            await call("pick_country", { p_game_id: game.id, p_country: country });
+            // On connaît déjà la valeur qu'on vient de valider : pas besoin de la
+            // redemander au serveur pour l'afficher via le bouton "œil".
+            setMyCountry(country);
+          }}
         />
         {discoveredOverlay}
       </>
@@ -180,6 +192,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         round={game.round}
         totalRounds={game.total_rounds}
         regionHint={me.region ?? undefined}
+        myCountry={myCountry}
         onBack={() => setLeaveOpen(true)}
         onAskLetter={(targetId, letter) =>
           call("ask_letter", { p_target_player_id: targetId, p_letter: letter })

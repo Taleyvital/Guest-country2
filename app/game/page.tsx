@@ -94,6 +94,7 @@ export default function GameDemoPage() {
         round={3}
         totalRounds={5}
         regionHint={me.region ?? undefined}
+        myCountry={SECRETS[me.id]}
         onAskLetter={askLetter}
         onGuessCountry={guess}
       />

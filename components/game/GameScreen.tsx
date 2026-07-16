@@ -24,6 +24,8 @@ export type GameScreenProps = {
   totalRounds?: number;
   /** La région de MON pays (que j'ai choisi — donc aucun secret pour moi). */
   regionHint?: string;
+  /** Le nom complet de MON pays — je l'ai choisi, ce n'est pas un secret pour moi. */
+  myCountry?: string;
   letterCost?: number;
 
   onAskLetter?: (targetId: string, letter: string) => void;
@@ -40,6 +42,7 @@ export function GameScreen({
   round,
   totalRounds,
   regionHint,
+  myCountry,
   letterCost = 50,
   onAskLetter,
   onGuessCountry,
@@ -120,11 +123,13 @@ export function GameScreen({
           canSelect={canPlay}
         />
 
-        {/* Mon propre pays : je le connais, je le regarde se faire découvrir. */}
+        {/* Mon propre pays : je le connais, je le regarde se faire découvrir.
+            Le bouton "œil" permet de le revoir à tout moment (voir CountryTiles). */}
         <CountryTiles
           tiles={myCountryTiles}
           hint={regionHint}
           title="Ton pays (ce que les autres ont trouvé)"
+          fullCountry={myCountry}
         />
 
         <LastActionCard action={lastAction} />
