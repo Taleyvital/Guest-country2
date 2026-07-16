@@ -8,6 +8,7 @@ import { errorMessage } from "@/lib/errors";
 import { CountryPicker } from "@/components/game/CountryPicker";
 import { LeaveDialog } from "@/components/game/LeaveDialog";
 import { PushPermission } from "@/components/PushPermission";
+import { DiceRoll } from "@/components/game/DiceRoll";
 import type { Country } from "@/lib/game/types";
 
 export default function RoomPage({ params }: { params: { code: string } }) {
@@ -61,8 +62,12 @@ export default function RoomPage({ params }: { params: { code: string } }) {
 
   const me = players.find((p) => p.user_id === userId) ?? null;
   const isHost = Boolean(me?.is_host);
-  const canStart =
+
+  // Le dé n'apparaît qu'une fois tout le monde prêt : ça matérialise l'ordre des
+  // étapes (pays -> prêt -> dé -> lancement) sans surcharger le salon dès l'arrivée.
+  const everyoneReady =
     players.length > 1 && players.every((p) => p.is_ready && p.has_picked);
+  const canStart = everyoneReady && players.every((p) => p.dice_roll !== null);
 
   const supabase = getSupabaseBrowserClient();
 
@@ -82,6 +87,11 @@ export default function RoomPage({ params }: { params: { code: string } }) {
     // Se déclarer prêt sans pays choisi n'a pas de sens : il n'y aurait rien à deviner.
     if (!me.has_picked) return setError("Choisis ton pays d’abord.");
     await supabase.from("players").update({ is_ready: !me.is_ready }).eq("id", me.id);
+  }
+
+  async function rollDice() {
+    const { error: e } = await supabase.rpc("roll_dice", { p_game_id: gameId });
+    if (e) setError(errorMessage(e));
   }
 
   async function leaveGame() {
@@ -179,6 +189,12 @@ export default function RoomPage({ params }: { params: { code: string } }) {
           de son tour prend tout son sens. Se masque seule si refusée/non supportée. */}
       <PushPermission />
 
+      {/* Le dé n'apparaît qu'une fois tout le monde prêt : c'est la dernière étape
+          avant le lancement. */}
+      {everyoneReady && (
+        <DiceRoll players={players} myUserId={userId} onRoll={rollDice} />
+      )}
+
       <ul className="flex flex-col gap-2">
         {players.map((p) => {
           const online = onlineUserIds.includes(p.user_id);
@@ -241,7 +257,9 @@ export default function RoomPage({ params }: { params: { code: string } }) {
               ? "Lancer la partie"
               : players.length < 2
                 ? "Il faut au moins 2 joueurs"
-                : "Tout le monde doit choisir un pays et être prêt"}
+                : !everyoneReady
+                  ? "Tout le monde doit choisir un pays et être prêt"
+                  : "Tout le monde doit lancer le dé"}
           </button>
         )}
       </div>

@@ -54,6 +54,8 @@ export type Player = {
   letters_left: number;
   /** A choisi son pays : condition pour lancer la partie. */
   has_picked: boolean;
+  /** Résultat du dé (1-6) qui décide qui commence la partie. Null tant qu'il n'a pas lancé. */
+  dice_roll: number | null;
 
   // --- Compteurs de partie (cumulés sur toutes les manches, pour le résumé). ---
   /** Pays devinés durant cette partie. */

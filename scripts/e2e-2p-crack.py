@@ -1,5 +1,8 @@
 """Partie à 2 : trouver le pays de l'autre termine la manche (migration 0012).
-B devine le pays d'A -> la manche se conclut aussitôt, A n'a pas de tour retour."""
+B devine le pays d'A -> la manche se conclut aussitôt, A n'a pas de tour retour.
+
+Depuis 0014, le premier joueur est désigné par un lancer de dé (aléatoire) : on résout
+DYNAMIQUEMENT qui commence après start_game plutôt que de supposer que c'est Alice."""
 import json, urllib.request, os, sys
 
 URL = os.environ["URL"]; KEY = os.environ["KEY"]
@@ -27,27 +30,36 @@ tok = [req("/auth/v1/signup", method="POST", body={})["access_token"] for _ in r
 g = rpc("create_game", tok[0], {"p_nickname": "Alice", "p_total_rounds": 2})
 code, gid = g["code"], g["id"]
 rpc("join_game", tok[1], {"p_code": code, "p_nickname": "Bob"})
-rpc("pick_country", tok[0], {"p_game_id": gid, "p_country": "FRANCE"})
-rpc("pick_country", tok[1], {"p_game_id": gid, "p_country": "JAPON"})
+
+COUNTRY = {"Alice": "FRANCE", "Bob": "JAPON"}
+rpc("pick_country", tok[0], {"p_game_id": gid, "p_country": COUNTRY["Alice"]})
+rpc("pick_country", tok[1], {"p_game_id": gid, "p_country": COUNTRY["Bob"]})
+for t in tok: rpc("roll_dice", t, {"p_game_id": gid})  # 0014 : le dé conditionne start_game
 rpc("start_game", tok[0], {"p_game_id": gid})
+
 pl = sel(f"players?game_id=eq.{gid}&select=id,nickname&order=seat", tok[0])
 pid = {p["nickname"]: p["id"] for p in pl}
-print(f"#{code} — 2 joueurs, 2 manches. Manche 1, tour à Alice.")
+tok_by_name = {"Alice": tok[0], "Bob": tok[1]}
 
-# Alice demande une lettre -> passe la main à Bob.
-rpc("ask_letter", tok[0], {"p_target_player_id": pid["Bob"], "p_letter": "J"})
-# Bob DEVINE le pays d'Alice = FRANCE (bon).
-r = rpc("submit_guess", tok[1], {"p_target_player_id": pid["Alice"], "p_guess": "FRANCE"})
-print("Bob devine FRANCE :", {k: r.get(k) for k in ("correct", "points")})
+game0 = sel(f"games?id=eq.{gid}&select=current_player_id", tok[0])[0]
+starter = next(p["nickname"] for p in pl if p["id"] == game0["current_player_id"])
+other = "Bob" if starter == "Alice" else "Alice"
+print(f"#{code} — 2 joueurs, 2 manches. Le dé désigne {starter} pour commencer.")
+
+# Le joueur en tour demande une lettre -> passe la main à l'autre.
+rpc("ask_letter", tok_by_name[starter], {"p_target_player_id": pid[other], "p_letter": COUNTRY[other][0]})
+# L'AUTRE devine le pays du STARTER (bon).
+r = rpc("submit_guess", tok_by_name[other], {"p_target_player_id": pid[starter], "p_guess": COUNTRY[starter]})
+print(f"{other} devine {COUNTRY[starter]} :", {k: r.get(k) for k in ("correct", "points")})
 
 g2 = sel(f"games?id=eq.{gid}&select=status,round,intermission,current_player_id", tok[0])[0]
 pls = sel(f"players?game_id=eq.{gid}&select=nickname,score&order=score.desc", tok[0])
-print("\n--- Après le crack de Bob ---")
+print(f"\n--- Après le crack de {other} ---")
 print(g2)
-check("la manche NE continue PAS (Alice n'a pas de tour retour)", g2["status"] != "playing", g2)
+check(f"la manche NE continue PAS ({starter} n'a pas de tour retour)", g2["status"] != "playing", g2)
 check("on passe à la manche suivante (intermission)",
       g2.get("intermission") is True and g2["round"] == 2, g2)
-check("Bob mène", pls[0]["nickname"] == "Bob", pls)
+check(f"{other} mène", pls[0]["nickname"] == other, pls)
 
 print("\nScores :", [(p["nickname"], p["score"]) for p in pls])
 print(("TOUT PASSE" if ok else "DES TESTS ÉCHOUENT"))
