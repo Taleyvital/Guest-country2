@@ -122,9 +122,13 @@ export default function PlayPage({ params }: { params: { code: string } }) {
   // La partie a basculé : tous les téléphones suivent l'état en base. On ne renvoie au
   // salon QUE si ce n'est pas une intermission (sinon on reste ici pour l'enchaînement).
   useEffect(() => {
+    // Tant que l'écran "ton pays a été deviné" est affiché, on NE NAVIGUE PAS : sinon
+    // il disparaîtrait aussitôt (à 2 joueurs / dernière manche, le crack conclut la
+    // manche en même temps). La navigation reprend au clic sur "Continuer".
+    if (discovered) return;
     if (game?.status === "finished") router.push(`/room/${code}/results`);
     else if (game?.status === "lobby" && !game.intermission) router.push(`/room/${code}`);
-  }, [game?.status, game?.intermission, code, router]);
+  }, [game?.status, game?.intermission, discovered, code, router]);
 
   if (!game || !me) {
     return (
