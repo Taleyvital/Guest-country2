@@ -23,7 +23,14 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const hidden = pathname.startsWith("/room") || pathname.startsWith("/onboarding");
+  // Même raisonnement que /room/... : une fois dans un salon (code de partie),
+  // le bas de l'écran est occupé par les actions de jeu ("Je suis prêt",
+  // "Lancer la partie", main de cartes...). /games/james et /games/8-americain
+  // SANS code restent des écrans de liste, la nav y reste visible.
+  const hidden =
+    pathname.startsWith("/room") ||
+    pathname.startsWith("/onboarding") ||
+    /^\/games\/[^/]+\/[^/]+/.test(pathname);
   if (hidden) return null;
 
   return (
