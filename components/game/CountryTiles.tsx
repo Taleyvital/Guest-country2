@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { CountryTile } from "@/lib/game/types";
 
 /**
@@ -15,27 +18,43 @@ export function CountryTiles({
   title?: string;
   /**
    * Le pays complet — celui que LE JOUEUR LUI-MÊME a choisi. Ce n'est pas un secret
-   * pour lui (contrairement aux tuiles, qui montrent ce que les AUTRES ont trouvé),
-   * donc affiché EN CLAIR, sans étape cachée derrière un bouton : un joueur qui vient
-   * de rouvrir l'app en pleine manche doit le voir d'un coup d'œil, pas le déduire
-   * d'une icône. Absent quand ce composant affiche le pays d'un adversaire.
+   * pour lui (contrairement aux tuiles, qui montrent ce que les AUTRES ont trouvé) :
+   * on lui permet de le revoir à tout moment, sans avoir à s'en souvenir pendant
+   * toute la manche. Absent quand ce composant affiche le pays d'un adversaire.
    */
   fullCountry?: string;
 }) {
+  const [revealed, setRevealed] = useState(false);
+
   return (
     <section className="rounded-xl border-b-2 border-surface-container-highest bg-white p-6 shadow-card">
-      <div className="mb-1 flex items-end justify-between gap-2">
+      <div className="mb-4 flex items-end justify-between gap-2">
         <h3 className="text-label-lg uppercase tracking-widest text-on-surface-variant">
           {title}
         </h3>
-        {hint && (
-          <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md text-accent">
-            {hint}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {hint && (
+            <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md text-accent">
+              {hint}
+            </span>
+          )}
+          {fullCountry && (
+            <button
+              type="button"
+              onClick={() => setRevealed((r) => !r)}
+              aria-pressed={revealed}
+              aria-label={revealed ? "Cacher mon pays" : "Voir mon pays"}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant transition-colors active:bg-surface-container"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {revealed ? "visibility_off" : "visibility"}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {fullCountry && (
+      {fullCountry && revealed && (
         <p className="mb-4 text-center text-headline-md text-accent">{fullCountry}</p>
       )}
 
