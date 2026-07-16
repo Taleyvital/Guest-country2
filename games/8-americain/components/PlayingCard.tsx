@@ -44,15 +44,15 @@ export function PlayingCard({
 
   const dims =
     size === "lg"
-      ? "h-32 w-24 text-2xl"
+      ? "h-44 w-32 text-3xl"
       : size === "sm"
-        ? "h-16 w-11 text-sm"
-        : "h-24 w-16 text-lg";
+        ? "h-24 w-[4.25rem] text-base"
+        : "h-32 w-[5.75rem] text-xl";
 
   return (
     <div
-      className={`relative flex shrink-0 flex-col justify-between overflow-hidden rounded-2xl border-2 border-black/5 bg-white p-1.5 shadow-card ${dims} ${colorClass} ${
-        faded ? "opacity-50" : ""
+      className={`relative flex shrink-0 flex-col justify-between overflow-hidden rounded-2xl border-2 border-black/5 bg-white p-2 shadow-card ${dims} ${colorClass} ${
+        faded ? "opacity-30" : ""
       }`}
     >
       <span className="text-left font-bold leading-none">{rank}</span>

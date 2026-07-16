@@ -43,7 +43,7 @@ export function Hand({
               aria-label={`Jouer ${card}`}
               className="origin-bottom transition-transform duration-150 ease-out"
               style={{
-                marginLeft: i === 0 ? 0 : "-2.5rem",
+                marginLeft: i === 0 ? 0 : "-3.5rem",
                 transform: `rotate(${angle}deg) translateY(${arc - (playable ? 14 : 0)}px)`,
                 filter: playable ? "drop-shadow(0 0 10px rgb(108 92 231 / 0.55))" : "none",
                 zIndex: i,

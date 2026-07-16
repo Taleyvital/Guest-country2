@@ -6,7 +6,7 @@
  *  carte. */
 export function CardBack({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const dims =
-    size === "lg" ? "h-32 w-24" : size === "sm" ? "h-16 w-11" : "h-24 w-16";
+    size === "lg" ? "h-44 w-32" : size === "sm" ? "h-24 w-[4.25rem]" : "h-32 w-[5.75rem]";
 
   return (
     <div
