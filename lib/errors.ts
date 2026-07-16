@@ -31,6 +31,20 @@ export function errorMessage(e: unknown): string {
     "everyone must pick a country": "Tout le monde doit d’abord choisir un pays.",
     "Anonymous sign-ins are disabled":
       "Active les sessions anonymes dans Supabase (Auth > Providers).",
+
+    // --- James ---
+    "table full": "Cette table est complète.",
+    "james needs exactly 4 players": "James se joue à exactement 4 joueurs.",
+    "everyone must be ready": "Tout le monde doit être prêt.",
+    "card not in hand": "Cette carte n’est pas dans ta main.",
+    "no four of a kind": "Tu n’as pas encore 4 cartes de la même couleur.",
+    "call not found": "Cet appel n’existe plus.",
+    "not your call to confirm": "Ce n’est pas à toi de confirmer cet appel.",
+
+    // --- 8 Américain ---
+    "card not playable": "Cette carte ne peut pas être jouée maintenant.",
+    "must choose a color for the 8": "Choisis une couleur pour le 8.",
+    "no cards left to draw": "Plus aucune carte à piocher.",
   };
 
   for (const [needle, message] of Object.entries(known)) {
