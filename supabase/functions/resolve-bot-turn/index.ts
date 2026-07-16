@@ -25,9 +25,14 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const MIN_DELAY_MS = 1000;
-const MAX_DELAY_MS = 2500;
-const MAX_ATTEMPTS = 8;
+// Réduit par rapport à la fourchette initiale (1000-2500ms) : le délai
+// s'ajoute au cold start Deno + aux allers-retours DB (surtout les tentatives
+// de country_guess), et le total dépassait par endroits les 5s de timeout par
+// défaut de pg_net (voir la marge relevée côté trigger, 0024_bot_net_timeout.sql).
+// Un temps de "réflexion" plus court reste perceptible sans mettre le total en danger.
+const MIN_DELAY_MS = 300;
+const MAX_DELAY_MS = 900;
+const MAX_ATTEMPTS = 5;
 
 function randomDelay(): number {
   return MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
