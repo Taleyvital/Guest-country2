@@ -52,3 +52,17 @@ export type AmericainHand = {
   player_id: string;
   cards: Card[];
 };
+
+export type AmericainEventType = "round_won" | "game_won";
+
+export type AmericainEvent = {
+  id: string;
+  game_id: string;
+  type: AmericainEventType;
+  /** Le gagnant : de la manche (round_won), ou de la partie au global (game_won). */
+  actor_id: string | null;
+  /** Dernière place au global — uniquement sur game_won. */
+  target_id: string | null;
+  payload: { penalties?: Record<string, number> };
+  created_at: string;
+};

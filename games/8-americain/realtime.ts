@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { AmericainGame, AmericainPlayer } from "./types";
+import type { AmericainEvent, AmericainGame, AmericainPlayer } from "./types";
 
 export type AmericainConnectionStatus = "connecting" | "live" | "reconnecting" | "error";
 
@@ -12,6 +12,8 @@ export type AmericainState = {
   players: AmericainPlayer[];
   /** RLS ne renvoie que MA main. */
   myHand: string[];
+  /** Fin de manche / de partie — éphémère, purgée côté DB (voir americain_events). */
+  lastEvent: AmericainEvent | null;
   onlineUserIds: string[];
   status: AmericainConnectionStatus;
 };
@@ -23,6 +25,7 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
     game: null,
     players: [],
     myHand: [],
+    lastEvent: null,
     onlineUserIds: [],
     status: "connecting",
   });
@@ -32,12 +35,18 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
   const hydrate = useCallback(async (id: string, playerId: string | null) => {
     const supabase = getSupabaseBrowserClient();
 
-    const [game, players, hand] = await Promise.all([
+    const [game, players, hand, events] = await Promise.all([
       supabase.from("americain_games").select("*").eq("id", id).single(),
       supabase.from("americain_players").select("*").eq("game_id", id).order("seat"),
       playerId
         ? supabase.from("americain_hands").select("*").eq("player_id", playerId).maybeSingle()
         : Promise.resolve({ data: null }),
+      supabase
+        .from("americain_events")
+        .select("*")
+        .eq("game_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1),
     ]);
 
     setState((s) => ({
@@ -45,6 +54,7 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
       game: (game.data as AmericainGame) ?? null,
       players: (players.data as AmericainPlayer[]) ?? [],
       myHand: ((hand.data as { cards: string[] } | null)?.cards) ?? [],
+      lastEvent: ((events.data as AmericainEvent[]) ?? [])[0] ?? null,
     }));
   }, []);
 
@@ -90,6 +100,12 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
         if (!row || row.player_id !== myPlayerId) return;
         setState((s) => ({ ...s, myHand: row.cards }));
       },
+    );
+
+    channel.on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "americain_events", filter: `game_id=eq.${gameId}` },
+      ({ new: event }) => setState((s) => ({ ...s, lastEvent: event as AmericainEvent })),
     );
 
     channel.on("presence", { event: "sync" }, () => {

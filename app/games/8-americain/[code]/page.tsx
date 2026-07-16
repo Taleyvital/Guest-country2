@@ -15,6 +15,7 @@ import { Scoreboard } from "@/games/8-americain/components/Scoreboard";
 import { OpponentsRow } from "@/games/8-americain/components/OpponentsRow";
 import { RoomHeader } from "@/games/8-americain/components/RoomHeader";
 import { TurnBanner } from "@/games/8-americain/components/TurnBanner";
+import { RoundEndScreen } from "@/games/8-americain/components/RoundEndScreen";
 import type { Card, Suit } from "@/games/8-americain/types";
 
 export default function AmericainRoomPage({ params }: { params: { code: string } }) {
@@ -26,6 +27,10 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingEight, setPendingEight] = useState<Card | null>(null);
+  // Dernier événement "manche gagnée" déjà refermé par CE joueur : sans ça,
+  // l'écran de recap reviendrait à chaque re-render tant qu'un nouvel event
+  // n'est pas arrivé.
+  const [dismissedRoundEventId, setDismissedRoundEventId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -43,7 +48,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
     })();
   }, [code]);
 
-  const { game, players, myHand, onlineUserIds, status, refresh } = useAmericainChannel(
+  const { game, players, myHand, lastEvent, onlineUserIds, status, refresh } = useAmericainChannel(
     gameId,
     myPlayerId,
   );
@@ -61,6 +66,12 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   const everyoneReady = players.length >= 2 && players.every((p) => p.is_ready);
   const isMyTurn = Boolean(me && game?.current_player_id === me.id);
   const currentPlayer = players.find((p) => p.id === game?.current_player_id) ?? null;
+
+  // "Manche gagnée" en attente d'un recap non encore refermé par ce joueur.
+  const roundEndEvent =
+    lastEvent && lastEvent.type === "round_won" && lastEvent.id !== dismissedRoundEventId
+      ? lastEvent
+      : null;
 
   async function toggleReady() {
     if (!me) return;
@@ -106,10 +117,23 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   }
 
   if (game?.status === "finished") {
-    const winner = [...players].sort((a, b) => a.penalty_score - b.penalty_score)[0];
+    const ranked = [...players].sort((a, b) => a.penalty_score - b.penalty_score);
+    const winner = ranked[0];
+    const lastPlace = ranked[ranked.length - 1];
+
     return (
       <main className="screen flex min-h-dvh flex-col items-center justify-center gap-4 text-center">
         <p className="text-display-lg">{winner?.nickname} gagne !</p>
+
+        {/* Le "prix citron" : distinct du classement, pour que la dernière place
+            se voie d'un coup d'oeil, pas juste comme la ligne du bas d'un tableau. */}
+        {lastPlace && lastPlace.id !== winner?.id && (
+          <p className="inline-flex animate-wobble items-center gap-2 rounded-full bg-danger px-4 py-2 text-label-lg text-white">
+            <span className="material-symbols-outlined text-[18px]">military_tech</span>
+            {lastPlace.nickname} termine dernier
+          </p>
+        )}
+
         <Scoreboard players={players} threshold={game.penalty_threshold} myUserId={userId} />
         <button onClick={() => router.push("/games/8-americain")} className="btn-primary rounded-full">
           Rejouer
@@ -152,6 +176,14 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
         )}
 
         {pendingEight && <ColorPickerModal onPick={(suit) => playCard(pendingEight, suit)} />}
+
+        {roundEndEvent && (
+          <RoundEndScreen
+            event={roundEndEvent}
+            players={players}
+            onClose={() => setDismissedRoundEventId(roundEndEvent.id)}
+          />
+        )}
       </main>
     );
   }

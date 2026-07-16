@@ -122,12 +122,21 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0) rotate(0)" },
           "50%": { transform: "translateY(-8px) rotate(6deg)" },
         },
+        // Secousse de dépit pour la dernière place en fin de partie (8 Américain).
+        wobble: {
+          "0%, 100%": { transform: "rotate(0)" },
+          "20%": { transform: "rotate(-8deg)" },
+          "40%": { transform: "rotate(7deg)" },
+          "60%": { transform: "rotate(-5deg)" },
+          "80%": { transform: "rotate(3deg)" },
+        },
       },
       animation: {
         "tile-pop": "tile-pop 220ms ease-out",
         "slide-up": "slide-up 300ms ease-out",
         "letter-in": "letter-in 520ms cubic-bezier(.2,.9,.3,1.4) both",
         float: "float 4s ease-in-out infinite",
+        wobble: "wobble 600ms ease-in-out 2",
       },
     },
   },
