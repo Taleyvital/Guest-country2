@@ -10,6 +10,19 @@ const SUIT_COLOR: Record<string, string> = {
   D: "text-danger",
 };
 
+const SUIT_TINT: Record<string, string> = {
+  S: "bg-on-surface/10",
+  C: "bg-on-surface/10",
+  H: "bg-danger/10",
+  D: "bg-danger/10",
+};
+
+/** Dame et Roi n'ont aucun effet de jeu (contrairement au Valet) : ce sont les
+ *  seules "figures" qui affichent un vrai portrait plutôt qu'un simple pictogramme. */
+function isCourtCard(rank: string): boolean {
+  return rank === "D" || rank === "R";
+}
+
 /** Une carte, dessinée une seule fois pour la main, la défausse et les
  *  aperçus : les cartes à effet (8, 10, Valet, As, 2) montrent un pictogramme
  *  au centre à la place du symbole de couleur, pour se repérer d'un coup
@@ -27,6 +40,7 @@ export function PlayingCard({
   const rank = rankLabel(card);
   const icon = effectIcon(card);
   const colorClass = SUIT_COLOR[suit];
+  const court = isCourtCard(rank);
 
   const dims =
     size === "lg"
@@ -37,7 +51,7 @@ export function PlayingCard({
 
   return (
     <div
-      className={`relative flex shrink-0 flex-col justify-between rounded-xl bg-white p-1.5 shadow-card ${dims} ${colorClass} ${
+      className={`relative flex shrink-0 flex-col justify-between overflow-hidden rounded-2xl border-2 border-black/5 bg-white p-1.5 shadow-card ${dims} ${colorClass} ${
         faded ? "opacity-50" : ""
       }`}
     >
@@ -46,6 +60,16 @@ export function PlayingCard({
       <span className="absolute inset-0 flex items-center justify-center">
         {icon ? (
           <span className="material-symbols-outlined text-[1.6em]">{icon}</span>
+        ) : court ? (
+          // Portrait stylisé : losange coloré + petite silhouette, façon figure de
+          // jeu de cartes classique, plutôt qu'un simple pique/coeur/carreau/trèfle.
+          <span
+            className={`flex aspect-square w-[68%] rotate-45 items-center justify-center rounded-md ${SUIT_TINT[suit]}`}
+          >
+            <span className="material-symbols-outlined -rotate-45 text-[1.3em]">
+              {rank === "R" ? "workspace_premium" : "face_4"}
+            </span>
+          </span>
         ) : (
           <span className="text-[1.8em] leading-none">{SUIT_LABEL[suit]}</span>
         )}
