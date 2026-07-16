@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { errorMessage } from "@/lib/errors";
 import { useAmericainChannel } from "@/games/8-americain/realtime";
+import { useAmericainSoundEffects } from "@/games/8-americain/useAmericainSoundEffects";
 import { rankOf } from "@/games/8-americain/engine";
 import { Hand } from "@/games/8-americain/components/Hand";
 import { DiscardPile } from "@/games/8-americain/components/DiscardPile";
@@ -52,6 +53,8 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   useEffect(() => {
     if (me && me.id !== myPlayerId) setMyPlayerId(me.id);
   }, [me, myPlayerId]);
+
+  useAmericainSoundEffects({ game, players, myHand, myPlayerId });
 
   const supabase = getSupabaseBrowserClient();
   const isHost = Boolean(me?.is_host);

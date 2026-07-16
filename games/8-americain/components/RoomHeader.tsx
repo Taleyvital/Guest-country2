@@ -1,5 +1,7 @@
 "use client";
 
+import { SoundToggle } from "@/components/game/SoundToggle";
+
 export function RoomHeader({
   code,
   round,
@@ -15,14 +17,18 @@ export function RoomHeader({
         Code : <span className="text-headline-md font-extrabold text-accent">#{code}</span>
       </p>
 
-      <button
-        type="button"
-        onClick={onRefresh}
-        aria-label="Actualiser"
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant active:scale-95"
-      >
-        <span className="material-symbols-outlined">refresh</span>
-      </button>
+      <div className="flex items-center gap-1">
+        <SoundToggle />
+
+        <button
+          type="button"
+          onClick={onRefresh}
+          aria-label="Actualiser"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant active:scale-95"
+        >
+          <span className="material-symbols-outlined">refresh</span>
+        </button>
+      </div>
 
       <span className="rounded-full bg-accent px-4 py-2 text-label-lg text-white shadow-btn-3d">
         Manche {round}
