@@ -189,10 +189,9 @@ grant execute on function ask_letter(uuid, text, uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Déclenchement du tour bot — même schéma que notify_turn_change (0008) :
--- réglages lus via current_setting, trigger silencieux si non configuré.
---
---   alter database postgres set app.bot_url = 'https://<ref>.supabase.co/functions/v1/resolve-bot-turn';
---   alter database postgres set app.bot_key = '<SERVICE_ROLE_KEY>';
+-- trigger silencieux si non configuré. Réglages via app_settings, pas
+-- current_setting : voir 0023_bot_settings_table.sql (ALTER DATABASE SET
+-- demande un privilège que Supabase n'accorde pas sur les projets hébergés).
 -- ---------------------------------------------------------------------------
 create or replace function resolve_bot_turn_country_guess()
 returns trigger
