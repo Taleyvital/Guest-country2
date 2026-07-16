@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -228,6 +229,48 @@ export default function Home() {
           {error}
         </p>
       )}
+
+      {/* Autres jeux de la plateforme : moteurs isolés, salons séparés de celui-ci. */}
+      <div className="flex w-full flex-col gap-3">
+        <p className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+          Autres jeux
+        </p>
+        <Link
+          href="/games/james"
+          className="flex w-full items-center gap-3 rounded-lg bg-white p-3 text-left shadow-card active:scale-[0.99]"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-[24px]">
+            🃏
+          </span>
+          <span className="flex-1">
+            <span className="block text-body-lg font-bold">James</span>
+            <span className="block text-label-md text-on-surface-variant">
+              4 joueurs, 2 équipes face-à-face
+            </span>
+          </span>
+          <span className="material-symbols-outlined text-on-surface-variant">
+            chevron_right
+          </span>
+        </Link>
+
+        <Link
+          href="/games/8-americain"
+          className="flex w-full items-center gap-3 rounded-lg bg-white p-3 text-left shadow-card active:scale-[0.99]"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-[24px]">
+            ♠️
+          </span>
+          <span className="flex-1">
+            <span className="block text-body-lg font-bold">8 Américain</span>
+            <span className="block text-label-md text-on-surface-variant">
+              2 à 6 joueurs, défausse-toi le premier
+            </span>
+          </span>
+          <span className="material-symbols-outlined text-on-surface-variant">
+            chevron_right
+          </span>
+        </Link>
+      </div>
 
       {/* Le profil passe en bas : c'est une destination secondaire, pas une action. */}
       <button
