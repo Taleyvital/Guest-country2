@@ -13,10 +13,9 @@
 --   - Le 10 (inversion) ne "saute" personne : à 2 joueurs, inverser le sens ne
 --     change rien à qui joue ensuite (il n'y a que deux joueurs), le comportement
 --     est donc déjà correct sans cas particulier.
---   - En pioche illimitée, chaque appel à draw_card ne tire qu'UNE carte et NE
---     PASSE PAS le tour : le joueur reste actif et peut retirer jusqu'à obtenir
---     une carte jouable (ou décider de la jouer). En pioche unique, un seul
---     tirage est autorisé et le tour passe immédiatement, jouable ou non.
+--   - [Corrigé par 0018_americain_draw_passes_turn.sql] Piocher passe TOUJOURS
+--     le tour, dans les deux modes : un draw_card = un tour terminé, jouable ou
+--     non. La distinction "illimitée / unique" ne change donc plus le tour.
 --   - Un joueur qui quitte une partie EN COURS n'est pas re-siégé (pas de
 --     renumérotation de seat) : cas non géré dans cette version, comme pour
 --     James.
