@@ -12,6 +12,7 @@ import { DiscardPile } from "@/games/8-americain/components/DiscardPile";
 import { DrawPile } from "@/games/8-americain/components/DrawPile";
 import { ColorPickerModal } from "@/games/8-americain/components/ColorPickerModal";
 import { Scoreboard } from "@/games/8-americain/components/Scoreboard";
+import { ScoreboardModal } from "@/games/8-americain/components/ScoreboardModal";
 import { OpponentsRow } from "@/games/8-americain/components/OpponentsRow";
 import { RoomHeader } from "@/games/8-americain/components/RoomHeader";
 import { TurnBanner } from "@/games/8-americain/components/TurnBanner";
@@ -27,6 +28,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingEight, setPendingEight] = useState<Card | null>(null);
+  const [showScores, setShowScores] = useState(false);
   // Dernier événement "manche gagnée" déjà refermé par CE joueur : sans ça,
   // l'écran de recap reviendrait à chaque re-render tant qu'un nouvel event
   // n'est pas arrivé.
@@ -154,7 +156,12 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   if (game?.status === "playing") {
     return (
       <main className="screen flex min-h-dvh flex-col gap-8 bg-surface-container-low pb-8">
-        <RoomHeader code={code} round={game.round} onRefresh={refresh} />
+        <RoomHeader
+          code={code}
+          round={game.round}
+          onRefresh={refresh}
+          onShowScores={() => setShowScores(true)}
+        />
 
         <OpponentsRow
           players={players}
@@ -185,6 +192,15 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
         )}
 
         {pendingEight && <ColorPickerModal onPick={(suit) => playCard(pendingEight, suit)} />}
+
+        {showScores && (
+          <ScoreboardModal
+            players={players}
+            threshold={game.penalty_threshold}
+            myUserId={userId}
+            onClose={() => setShowScores(false)}
+          />
+        )}
 
         {roundEndEvent && (
           <RoundEndScreen
