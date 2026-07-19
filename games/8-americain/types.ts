@@ -17,6 +17,8 @@ export type AmericainGame = {
   max_players: number;
   draw_mode: DrawMode;
   penalty_threshold: number;
+  /** Nombre de manches avant la fin forcée de la partie (le seuil de pénalité peut aussi y mettre fin plus tôt). */
+  max_rounds: number;
   /** +1 horaire, -1 anti-horaire. Basculé par le 10. */
   direction: 1 | -1;
   current_player_id: string | null;

@@ -6,11 +6,15 @@ import type { AmericainPlayer } from "../types";
 export function ScoreboardModal({
   players,
   threshold,
+  maxRounds,
+  round,
   myUserId,
   onClose,
 }: {
   players: AmericainPlayer[];
   threshold: number;
+  maxRounds: number;
+  round: number;
   myUserId: string | null;
   onClose: () => void;
 }) {
@@ -36,7 +40,7 @@ export function ScoreboardModal({
         </div>
 
         <p className="text-body-md text-on-surface-variant">
-          Fin de partie à {threshold} points.
+          Manche {round}/{maxRounds} · fin de partie à {threshold} points.
         </p>
 
         <Scoreboard players={players} threshold={threshold} myUserId={myUserId} />

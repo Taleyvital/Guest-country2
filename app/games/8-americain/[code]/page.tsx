@@ -159,6 +159,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
         <RoomHeader
           code={code}
           round={game.round}
+          maxRounds={game.max_rounds}
           onRefresh={refresh}
           onShowScores={() => setShowScores(true)}
         />
@@ -197,6 +198,8 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
           <ScoreboardModal
             players={players}
             threshold={game.penalty_threshold}
+            maxRounds={game.max_rounds}
+            round={game.round}
             myUserId={userId}
             onClose={() => setShowScores(false)}
           />

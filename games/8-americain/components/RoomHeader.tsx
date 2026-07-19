@@ -5,11 +5,13 @@ import { SoundToggle } from "@/components/game/SoundToggle";
 export function RoomHeader({
   code,
   round,
+  maxRounds,
   onRefresh,
   onShowScores,
 }: {
   code: string;
   round: number;
+  maxRounds: number;
   onRefresh: () => void;
   onShowScores: () => void;
 }) {
@@ -42,7 +44,7 @@ export function RoomHeader({
       </div>
 
       <span className="rounded-full bg-accent px-4 py-2 text-label-lg text-white shadow-btn-3d">
-        Manche {round}
+        Manche {round}/{maxRounds}
       </span>
     </header>
   );

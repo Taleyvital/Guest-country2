@@ -13,6 +13,7 @@ export default function AmericainHome() {
   const [joining, setJoining] = useState(false);
   const [maxPlayers, setMaxPlayers] = useState(6);
   const [drawMode, setDrawMode] = useState<DrawMode>("unlimited");
+  const [maxRounds, setMaxRounds] = useState(5);
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +35,7 @@ export default function AmericainHome() {
               p_nickname: profile.nickname,
               p_max_players: maxPlayers,
               p_draw_mode: drawMode,
+              p_max_rounds: maxRounds,
             })
           : await supabase.rpc("join_americain_game", {
               p_code: code.trim().toUpperCase(),
@@ -75,6 +77,17 @@ export default function AmericainHome() {
             max={6}
             value={maxPlayers}
             onChange={(e) => setMaxPlayers(Math.min(6, Math.max(2, Number(e.target.value))))}
+            className="rounded-lg border-2 border-tile bg-canvas p-2 text-center"
+          />
+          <label className="text-label-lg uppercase tracking-widest text-on-surface-variant">
+            Nombre de manches
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={maxRounds}
+            onChange={(e) => setMaxRounds(Math.min(20, Math.max(1, Number(e.target.value))))}
             className="rounded-lg border-2 border-tile bg-canvas p-2 text-center"
           />
           <label className="text-label-lg uppercase tracking-widest text-on-surface-variant">
