@@ -17,6 +17,7 @@ import { OpponentsRow } from "@/games/8-americain/components/OpponentsRow";
 import { RoomHeader } from "@/games/8-americain/components/RoomHeader";
 import { TurnBanner } from "@/games/8-americain/components/TurnBanner";
 import { RoundEndScreen } from "@/games/8-americain/components/RoundEndScreen";
+import { LeaveDialog } from "@/components/game/LeaveDialog";
 import type { Card, Suit } from "@/games/8-americain/types";
 
 export default function AmericainRoomPage({ params }: { params: { code: string } }) {
@@ -29,6 +30,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
   const [error, setError] = useState<string | null>(null);
   const [pendingEight, setPendingEight] = useState<Card | null>(null);
   const [showScores, setShowScores] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
   // Dernier événement "manche gagnée" déjà refermé par CE joueur : sans ça,
   // l'écran de recap reviendrait à chaque re-render tant qu'un nouvel event
   // n'est pas arrivé.
@@ -116,6 +118,13 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
     if (e) setError(errorMessage(e));
   }
 
+  async function leaveGame() {
+    if (!gameId) return;
+    const { error: e } = await supabase.rpc("leave_americain_game", { p_game_id: gameId });
+    if (e) setError(errorMessage(e));
+    router.push("/");
+  }
+
   if (error && !gameId) {
     return (
       <main className="screen flex min-h-dvh flex-col items-center justify-center gap-4 text-center">
@@ -162,6 +171,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
           maxRounds={game.max_rounds}
           onRefresh={refresh}
           onShowScores={() => setShowScores(true)}
+          onBack={() => setLeaveOpen(true)}
         />
 
         <OpponentsRow
@@ -184,6 +194,7 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
           currentColor={game.current_color}
           topCard={game.top_card}
           onPlay={(card) => playCard(card)}
+          storageKey={me ? `americain-hand-order:${gameId}:${me.id}` : undefined}
         />
 
         {error && (
@@ -212,13 +223,30 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
             onClose={() => setDismissedRoundEventId(roundEndEvent.id)}
           />
         )}
+
+        <LeaveDialog
+          open={leaveOpen}
+          isPlaying={game.status === "playing"}
+          onClose={() => setLeaveOpen(false)}
+          onKeepSeat={() => router.push("/")}
+          onLeave={leaveGame}
+        />
       </main>
     );
   }
 
   return (
     <main className="screen flex min-h-dvh flex-col gap-6 py-6">
-      <header className="text-center">
+      <header className="relative text-center">
+        <button
+          type="button"
+          onClick={() => setLeaveOpen(true)}
+          aria-label="Retour"
+          className="absolute left-0 top-0 rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-low"
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+
         <p className="text-label-lg uppercase tracking-widest text-on-surface-variant">
           8 Américain
         </p>
@@ -302,6 +330,14 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
           {error}
         </p>
       )}
+
+      <LeaveDialog
+        open={leaveOpen}
+        isPlaying={false}
+        onClose={() => setLeaveOpen(false)}
+        onKeepSeat={() => router.push("/")}
+        onLeave={leaveGame}
+      />
     </main>
   );
 }

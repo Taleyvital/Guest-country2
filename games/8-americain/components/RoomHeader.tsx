@@ -8,18 +8,31 @@ export function RoomHeader({
   maxRounds,
   onRefresh,
   onShowScores,
+  onBack,
 }: {
   code: string;
   round: number;
   maxRounds: number;
   onRefresh: () => void;
   onShowScores: () => void;
+  onBack: () => void;
 }) {
   return (
     <header className="flex items-center justify-between rounded-b-2xl bg-white px-4 py-4 shadow-card">
-      <p className="text-body-md">
-        Code : <span className="text-headline-md font-extrabold text-accent">#{code}</span>
-      </p>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Retour"
+          className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-low"
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+
+        <p className="text-body-md">
+          Code : <span className="text-headline-md font-extrabold text-accent">#{code}</span>
+        </p>
+      </div>
 
       <div className="flex items-center gap-1">
         <SoundToggle />
