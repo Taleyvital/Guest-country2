@@ -203,7 +203,12 @@ export default function AmericainRoomPage({ params }: { params: { code: string }
           </p>
         )}
 
-        {pendingEight && <ColorPickerModal onPick={(suit) => playCard(pendingEight, suit)} />}
+        {pendingEight && (
+          <ColorPickerModal
+            onPick={(suit) => playCard(pendingEight, suit)}
+            onClose={() => setPendingEight(null)}
+          />
+        )}
 
         {showScores && (
           <ScoreboardModal

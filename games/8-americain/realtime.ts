@@ -149,5 +149,46 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
     };
   }, [gameId, myPlayerId, hydrate]);
 
+  // Filet anti-bot-figé : le déclenchement serveur (trigger → pg_net → edge
+  // function) perd parfois un coup — pg_net abandonne l'appel à 12s, constaté
+  // en prod — et rien côté serveur ne re-déclenche un bot dont le tour n'a pas
+  // avancé. La fonction edge revalidant elle-même que c'est le tour d'un bot
+  // (et les RPC tranchant en dernier ressort), la re-poster est sans risque :
+  // au pire un no-op, même si plusieurs joueurs la re-postent en même temps.
+  const kickGameId = state.game?.status === "playing" ? state.game.id : null;
+  const currentPlayerId = state.game?.current_player_id ?? null;
+  const isBotTurn =
+    kickGameId !== null &&
+    state.players.some((p) => p.id === currentPlayerId && p.is_bot);
+
+  useEffect(() => {
+    if (!isBotTurn || !kickGameId) return;
+
+    const kick = () => {
+      fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/resolve-bot-turn`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_type: "americain", game_id: kickGameId }),
+      }).catch(() => {
+        // Réseau client indisponible : le poll de re-hydratation couvre déjà ça.
+      });
+    };
+
+    // Un bot joue normalement en ~1-2s : à 6s sans changement de tour, le
+    // déclenchement est considéré perdu. Puis on insiste toutes les 8s — ça
+    // couvre aussi le cas du tour qui REVIENT au même bot (Valet à 2 joueurs :
+    // current_player_id inchangé, donc trigger serveur jamais re-déclenché).
+    let intervalId: number | undefined;
+    const timeoutId = window.setTimeout(() => {
+      kick();
+      intervalId = window.setInterval(kick, 8000);
+    }, 6000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
+    };
+  }, [isBotTurn, kickGameId, currentPlayerId]);
+
   return { ...state, refresh: () => (gameId ? hydrate(gameId, myPlayerId) : undefined) };
 }

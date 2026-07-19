@@ -96,14 +96,20 @@ export function Hand({
     setDragIndex(d.index);
     setDragOffset(dx);
 
-    // Réordonne en direct : la carte glissée saute vers l'emplacement dont le
-    // centre est le plus proche du doigt.
+    // Réordonne en direct : la carte glissée prend la place d'une autre carte
+    // uniquement quand le doigt a FRANCHI le centre de celle-ci (jamais "la
+    // plus proche" : la carte glissée suit déjà le doigt, et sa voisine serait
+    // sinon toujours élue au moindre pixel — swaps en boucle). Le franchissement
+    // donne une hystérésis naturelle : pas de retour en arrière tant qu'on ne
+    // re-croise pas un centre.
     let target = d.index;
     let bestDist = Infinity;
     cardRefs.current.forEach((el, i) => {
-      if (!el) return;
+      if (!el || i === d.index || i >= order.length) return;
       const rect = el.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
+      const crossed = i > d.index ? e.clientX > centerX : e.clientX < centerX;
+      if (!crossed) return;
       const dist = Math.abs(centerX - e.clientX);
       if (dist < bestDist) {
         bestDist = dist;
@@ -112,9 +118,13 @@ export function Hand({
     });
 
     if (target !== d.index) {
+      // Capture l'index AVANT de le réassigner : l'updater de setOrder ne
+      // s'exécute qu'au render suivant, et lirait sinon le d.index déjà mis à
+      // jour — splice(target) + insert(target), soit aucun déplacement.
+      const from = d.index;
       setOrder((prev) => {
         const next = [...prev];
-        const [moved] = next.splice(d.index, 1);
+        const [moved] = next.splice(from, 1);
         next.splice(target, 0, moved);
         return next;
       });
@@ -165,8 +175,8 @@ export function Hand({
               className="origin-bottom cursor-grab touch-none select-none active:cursor-grabbing"
               style={{
                 marginLeft: i === 0 ? 0 : "-3.5rem",
-                transform: `rotate(${angle}deg) translateY(${arc - (playable ? 14 : 0)}px) translateX(${
-                  isDragging ? dragOffset : 0
+                transform: `translateX(${isDragging ? dragOffset : 0}px) rotate(${angle}deg) translateY(${
+                  arc - (playable ? 14 : 0)
                 }px)`,
                 filter: playable ? "drop-shadow(0 0 10px rgb(108 92 231 / 0.55))" : "none",
                 zIndex: isDragging ? 50 : i,

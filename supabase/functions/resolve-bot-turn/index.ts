@@ -20,22 +20,35 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
-
 // Délai volontaire : minime, juste assez pour qu'un coup ne soit pas instantané.
-// La lenteur observée en prod (jusqu'à ~12s sur certains appels) ne vient PAS
-// de ce délai (300-900ms max) mais de l'exécution elle-même — voir REQUEST_TIMEOUT_MS
-// ci-dessous, qui borne chaque aller-retour réseau pour empêcher un appel lent de
-// faire traîner tout le tour.
+// La lenteur observée en prod ne vient PAS de ce délai : les logs montrent des
+// invocations à ~75s (exactes, répétées) alors que le handler est borné à
+// quelques secondes — le temps part AVANT/AUTOUR du handler (requête retenue
+// par la passerelle, pg_net qui abandonne à 12s, body lu très tard). D'où les
+// deux défenses ci-dessous : AbortSignal sur chaque fetch (un socket qui pend
+// ne garde plus le worker vivant) et lecture du body elle-même bornée. Le
+// filet final est côté client : useAmericainChannel re-poste ici si le tour
+// d'un bot stagne (idempotent, les RPC revalident le tour).
 const MIN_DELAY_MS = 200;
 const MAX_DELAY_MS = 500;
 const MAX_ATTEMPTS = 3;
 // Aucun appel réseau individuel (une requête PostgREST/RPC) ne doit dépasser ça :
 // mieux vaut un coup raté proprement qu'un tour qui traîne en longueur.
 const REQUEST_TIMEOUT_MS = 2500;
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  {
+    global: {
+      // withTimeout (plus bas) borne l'await mais n'ANNULE pas l'appel : le
+      // fetch abandonné restait en vol et gardait le worker vivant. Ici le
+      // socket lui-même est tué à échéance.
+      fetch: (input, init) =>
+        fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) }),
+    },
+  },
+);
 
 function randomDelay(): number {
   return MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
@@ -77,7 +90,11 @@ const SUITS = ["S", "H", "D", "C"];
 
 Deno.serve(async (req) => {
   try {
-    const { game_type, game_id } = (await req.json()) as {
+    // Borné aussi : sur une connexion que pg_net a déjà abandonnée, la lecture
+    // du body peut pendre très longtemps avant de se résoudre — et le coup
+    // serait alors joué avec ~1min de retard. Mieux vaut rater ce déclenchement
+    // (le filet client re-postera) que jouer en différé.
+    const { game_type, game_id } = (await withTimeout(req.json(), "read body")) as {
       game_type?: "country_guess" | "americain";
       game_id?: string;
     };
@@ -123,19 +140,28 @@ async function resolveCountryGuessTurn(gameId: string) {
 
   if (!game || game.status !== "playing" || !game.current_player_id) return;
 
-  const { data: bot } = await withTimeout(
-    supabase.from("players").select("id, user_id, is_bot").eq("id", game.current_player_id).single(),
-    "fetch bot",
-  );
+  // bot.id est déjà connu (= game.current_player_id) : le fetch des candidats
+  // ne dépend pas du résultat du fetch bot, les deux partent en parallèle
+  // plutôt que d'attendre l'un puis l'autre.
+  const [{ data: bot }, { data: candidates }] = await Promise.all([
+    withTimeout(
+      supabase.from("players").select("id, user_id, is_bot").eq("id", game.current_player_id).single(),
+      "fetch bot",
+    ),
+    withTimeout(
+      supabase
+        .from("players")
+        .select("id")
+        .eq("game_id", gameId)
+        .eq("is_cracked", false)
+        .neq("id", game.current_player_id),
+      "fetch candidates",
+    ),
+  ]);
 
   // Re-vérifié APRÈS le délai : le tour a pu changer entre-temps (un autre
   // joueur a quitté, une manche s'est terminée...).
   if (!bot || !bot.is_bot) return;
-
-  const { data: candidates } = await withTimeout(
-    supabase.from("players").select("id").eq("game_id", gameId).eq("is_cracked", false).neq("id", bot.id),
-    "fetch candidates",
-  );
 
   if (!candidates || candidates.length === 0) return;
 
@@ -191,21 +217,25 @@ async function resolveAmericainTurn(gameId: string) {
 
   if (!game || game.status !== "playing" || !game.current_player_id) return;
 
-  const { data: bot } = await withTimeout(
-    supabase
-      .from("americain_players")
-      .select("id, user_id, is_bot")
-      .eq("id", game.current_player_id)
-      .single(),
-    "fetch bot",
-  );
+  // bot.id est déjà connu (= game.current_player_id) : le fetch de la main ne
+  // dépend pas du résultat du fetch bot, les deux partent en parallèle plutôt
+  // que d'attendre l'un puis l'autre.
+  const [{ data: bot }, { data: hand }] = await Promise.all([
+    withTimeout(
+      supabase
+        .from("americain_players")
+        .select("id, user_id, is_bot")
+        .eq("id", game.current_player_id)
+        .single(),
+      "fetch bot",
+    ),
+    withTimeout(
+      supabase.from("americain_hands").select("cards").eq("player_id", game.current_player_id).single(),
+      "fetch hand",
+    ),
+  ]);
 
   if (!bot || !bot.is_bot) return;
-
-  const { data: hand } = await withTimeout(
-    supabase.from("americain_hands").select("cards").eq("player_id", bot.id).single(),
-    "fetch hand",
-  );
 
   const cards = (hand?.cards as string[] | undefined) ?? [];
   const playable = cards.filter((c) => isPlayable(c, game.current_color, game.top_card));

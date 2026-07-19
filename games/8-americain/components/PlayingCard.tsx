@@ -1,32 +1,34 @@
 "use client";
 
-import { effectIcon, rankLabel, SUIT_LABEL, suitOf } from "../engine";
+import { effectIcon, rankOf, suitOf } from "../engine";
 import type { Card } from "../types";
 
-const SUIT_COLOR: Record<string, string> = {
-  S: "text-on-surface",
-  C: "text-on-surface",
-  H: "text-danger",
-  D: "text-danger",
+/** Identifiants du sprite public/cards/svg-cards.svg (SVG-cards de David
+ *  Bellot) : chaque carte y est un groupe nommé `${couleur}_${valeur}`,
+ *  normalisé à l'origine — référençable directement via <use>. */
+const SUIT_NAME: Record<string, string> = {
+  S: "spade",
+  H: "heart",
+  D: "diamond",
+  C: "club",
 };
 
-const SUIT_TINT: Record<string, string> = {
-  S: "bg-on-surface/10",
-  C: "bg-on-surface/10",
-  H: "bg-danger/10",
-  D: "bg-danger/10",
+const RANK_NAME: Record<string, string> = {
+  A: "1",
+  J: "jack",
+  Q: "queen",
+  K: "king",
 };
 
-/** Dame et Roi n'ont aucun effet de jeu (contrairement au Valet) : ce sont les
- *  seules "figures" qui affichent un vrai portrait plutôt qu'un simple pictogramme. */
-function isCourtCard(rank: string): boolean {
-  return rank === "D" || rank === "R";
+function spriteId(card: Card): string {
+  const rank = rankOf(card);
+  return `${SUIT_NAME[suitOf(card)]}_${RANK_NAME[rank] ?? rank}`;
 }
 
 /** Une carte, dessinée une seule fois pour la main, la défausse et les
- *  aperçus : les cartes à effet (8, 10, Valet, As, 2) montrent un pictogramme
- *  au centre à la place du symbole de couleur, pour se repérer d'un coup
- *  d'oeil — comme sur un jeu type Uno. */
+ *  aperçus : vraie face de jeu de cartes classique (sprite SVG), avec en plus
+ *  un petit badge en haut à droite sur les cartes à effet (8, 10, Valet, As,
+ *  2) pour les repérer d'un coup d'oeil — comme sur un jeu type Uno. */
 export function PlayingCard({
   card,
   size = "md",
@@ -36,46 +38,37 @@ export function PlayingCard({
   size?: "sm" | "md" | "lg";
   faded?: boolean;
 }) {
-  const suit = suitOf(card);
-  const rank = rankLabel(card);
   const icon = effectIcon(card);
-  const colorClass = SUIT_COLOR[suit];
-  const court = isCourtCard(rank);
 
+  // L'arrondi suit le rayon dessiné dans le sprite (~6.9 unités pour 169 de
+  // large) : un arrondi plus fort rognerait le liseré noir des coins.
   const dims =
     size === "lg"
-      ? "h-44 w-32 text-3xl"
+      ? "h-44 w-32 rounded-[5px] text-3xl"
       : size === "sm"
-        ? "h-24 w-[4.25rem] text-base"
-        : "h-32 w-[5.75rem] text-xl";
+        ? "h-24 w-[4.25rem] rounded-[3px] text-base"
+        : "h-32 w-[5.75rem] rounded-[4px] text-xl";
 
   return (
     <div
-      className={`relative flex shrink-0 flex-col justify-between overflow-hidden rounded-2xl border-2 border-black/5 bg-white p-2 shadow-card ${dims} ${colorClass} ${
-        faded ? "opacity-30" : ""
+      className={`relative shrink-0 overflow-hidden bg-white shadow-card ${dims} ${
+        faded ? "grayscale" : ""
       }`}
     >
-      <span className="text-left font-bold leading-none">{rank}</span>
+      <svg
+        className="h-full w-full"
+        viewBox="0 0 169.075 244.64"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <use href={`/cards/svg-cards.svg#${spriteId(card)}`} />
+      </svg>
 
-      <span className="absolute inset-0 flex items-center justify-center">
-        {icon ? (
-          <span className="material-symbols-outlined text-[1.6em]">{icon}</span>
-        ) : court ? (
-          // Portrait stylisé : losange coloré + petite silhouette, façon figure de
-          // jeu de cartes classique, plutôt qu'un simple pique/coeur/carreau/trèfle.
-          <span
-            className={`flex aspect-square w-[68%] rotate-45 items-center justify-center rounded-md ${SUIT_TINT[suit]}`}
-          >
-            <span className="material-symbols-outlined -rotate-45 text-[1.3em]">
-              {rank === "R" ? "workspace_premium" : "face_4"}
-            </span>
-          </span>
-        ) : (
-          <span className="text-[1.8em] leading-none">{SUIT_LABEL[suit]}</span>
-        )}
-      </span>
-
-      <span className="self-end rotate-180 font-bold leading-none">{rank}</span>
+      {icon ? (
+        <span className="absolute right-1 top-1 flex h-[1.05em] w-[1.05em] items-center justify-center rounded-full bg-accent text-white shadow-sm">
+          <span className="material-symbols-outlined text-[0.7em] leading-none">{icon}</span>
+        </span>
+      ) : null}
     </div>
   );
 }
