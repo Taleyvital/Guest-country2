@@ -130,8 +130,20 @@ export function useAmericainChannel(gameId: string | null, myPlayerId: string | 
       }
     });
 
+    // Filet de sécurité : le websocket peut décrocher silencieusement (verrouillage
+    // écran, tunnel réseau) sans que le statut du channel ne le signale. On re-hydrate
+    // depuis la DB au retour au premier plan, et périodiquement en tâche de fond, pour
+    // ne jamais rester bloqué sur un tour périmé.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") hydrate(gameId, myPlayerId);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    const pollId = window.setInterval(() => hydrate(gameId, myPlayerId), 8000);
+
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      window.clearInterval(pollId);
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
