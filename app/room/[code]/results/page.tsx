@@ -6,7 +6,7 @@ import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase
 import { useGameChannel } from "@/lib/realtime/useGameChannel";
 import type { Player } from "@/lib/supabase/types";
 import { isPhoto } from "@/lib/game/avatar";
-import { LinkEmailCard } from "@/components/LinkEmailCard";
+import { AccountLinkSection } from "@/components/AccountLinkSection";
 
 /** Petite pastille avatar réutilisée partout dans le résumé. */
 function Avatar({ player, size = 40 }: { player: Player; size?: number }) {
@@ -147,7 +147,7 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
         </p>
       )}
 
-      <LinkEmailCard />
+      <AccountLinkSection />
 
       <div className="mt-auto flex gap-3">
         <button

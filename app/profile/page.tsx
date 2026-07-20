@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loadProfile, type Profile } from "@/lib/game/profile";
 import { isPhoto } from "@/lib/game/avatar";
-import { LinkEmailCard } from "@/components/LinkEmailCard";
+import { AccountLinkSection } from "@/components/AccountLinkSection";
 
 type Stats = {
   games_played: number;
@@ -158,7 +158,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {!hasEmail && <LinkEmailCard />}
+      {!hasEmail && <AccountLinkSection />}
 
       <button
         type="button"

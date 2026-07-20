@@ -31,6 +31,10 @@ export function errorMessage(e: unknown): string {
     "everyone must pick a country": "Tout le monde doit d’abord choisir un pays.",
     "Anonymous sign-ins are disabled":
       "Active les sessions anonymes dans Supabase (Auth > Providers).",
+    "Signups not allowed for otp": "Aucun compte n’existe avec cet e-mail.",
+    "Token has expired or is invalid": "Ce code a expiré ou est invalide. Redemandes-en un.",
+    "A user with this email address has already been registered":
+      "Cet e-mail est déjà lié à un autre compte.",
 
     // --- James ---
     "table full": "Cette table est complète.",
