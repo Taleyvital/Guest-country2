@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loadProfile, type Profile } from "@/lib/game/profile";
 import { isPhoto } from "@/lib/game/avatar";
+import { LinkEmailCard } from "@/components/LinkEmailCard";
 
 type Stats = {
   games_played: number;
@@ -34,6 +35,7 @@ export default function ProfilePage() {
   const [stats, setStats] = useState<Stats>(EMPTY);
   const [discovered, setDiscovered] = useState(0);
   const [totalCountries, setTotalCountries] = useState(0);
+  const [hasEmail, setHasEmail] = useState(false);
 
   useEffect(() => {
     setProfile(loadProfile());
@@ -41,6 +43,7 @@ export default function ProfilePage() {
     (async () => {
       const session = await ensureAnonymousSession();
       if (!session) return;
+      setHasEmail(Boolean(session.user.email));
       const supabase = getSupabaseBrowserClient();
 
       // La RLS ne laisse lire QUE ses propres stats : pas de filtre user_id à écrire,
@@ -154,6 +157,8 @@ export default function ProfilePage() {
           <span className="text-headline-md">{stats.games_played}</span>
         </div>
       </section>
+
+      {!hasEmail && <LinkEmailCard />}
 
       <button
         type="button"
