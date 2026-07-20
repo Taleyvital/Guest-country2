@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flagEmoji } from "@/lib/game/flags";
 
 export type GuessResult = {
   correct: boolean;
@@ -45,7 +46,13 @@ export function SuccessCelebration({
     >
       <div className="flex w-full max-w-container flex-col items-center gap-6 rounded-[2rem] bg-canvas p-8 text-center shadow-modal animate-slide-up">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success text-white">
-          <span className="material-symbols-outlined text-[40px]">emoji_events</span>
+          {flagEmoji(result.country ?? "") ? (
+            <span aria-hidden className="text-[40px] leading-none">
+              {flagEmoji(result.country ?? "")}
+            </span>
+          ) : (
+            <span className="material-symbols-outlined text-[40px]">emoji_events</span>
+          )}
         </div>
 
         <div>

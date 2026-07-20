@@ -1,5 +1,7 @@
 "use client";
 
+import { flagEmoji } from "@/lib/game/flags";
+
 /**
  * Écran vu par le joueur DONT LE PAYS VIENT D'ÊTRE DEVINÉ.
  *
@@ -32,7 +34,13 @@ export function CountryFoundScreen({
     >
       <div className="flex w-full max-w-container flex-col items-center gap-6 rounded-[2rem] bg-canvas p-8 text-center shadow-modal animate-slide-up">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-tertiary text-white">
-          <span className="material-symbols-outlined text-[40px]">gps_fixed</span>
+          {flagEmoji(country) ? (
+            <span aria-hidden className="text-[40px] leading-none">
+              {flagEmoji(country)}
+            </span>
+          ) : (
+            <span className="material-symbols-outlined text-[40px]">gps_fixed</span>
+          )}
         </div>
 
         <div>

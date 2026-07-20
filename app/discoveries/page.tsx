@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureAnonymousSession, getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Country } from "@/lib/game/types";
+import { flagEmoji } from "@/lib/game/flags";
 
 type Discovery = { country: string; times: number; last_at: string };
 
@@ -112,7 +113,12 @@ export default function DiscoveriesPage() {
               >
                 {d ? (
                   <>
-                    <span className="material-symbols-outlined text-success">verified</span>
+                    <span className="flex items-center gap-1.5">
+                      <span aria-hidden className="text-2xl leading-none">
+                        {flagEmoji(c.name)}
+                      </span>
+                      <span className="material-symbols-outlined text-success">verified</span>
+                    </span>
                     <span className="text-body-lg font-bold">{c.name}</span>
                     <span className="text-label-md text-on-surface-variant">
                       {c.region}

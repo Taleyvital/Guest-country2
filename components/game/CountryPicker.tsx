@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Country } from "@/lib/game/types";
+import { flagEmoji } from "@/lib/game/flags";
 
 /**
  * "brésil", "BRESIL", "Brésil " -> "BRESIL".
@@ -125,7 +126,12 @@ export function CountryPicker({
                     : "bg-white text-on-surface active:bg-surface-container",
                 ].join(" ")}
               >
-                <span className="text-body-lg">{c.name}</span>
+                <span className="flex items-center gap-2 text-body-lg">
+                  <span aria-hidden className="text-xl leading-none">
+                    {flagEmoji(c.name)}
+                  </span>
+                  {c.name}
+                </span>
                 <span
                   className={[
                     "text-label-md",
