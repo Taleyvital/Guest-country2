@@ -33,11 +33,13 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
 
   const [gameId, setGameId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [hasEmail, setHasEmail] = useState(false);
 
   useEffect(() => {
     (async () => {
       const session = await ensureAnonymousSession();
       setUserId(session?.user.id ?? null);
+      setHasEmail(Boolean(session?.user.email));
 
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.from("games").select("id").eq("code", code).single();
@@ -147,7 +149,7 @@ export default function ResultsPage({ params }: { params: { code: string } }) {
         </p>
       )}
 
-      <AccountLinkSection />
+      <AccountLinkSection hasEmail={hasEmail} />
 
       <div className="mt-auto flex gap-3">
         <button

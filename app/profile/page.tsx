@@ -158,7 +158,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {!hasEmail && <AccountLinkSection />}
+      <AccountLinkSection hasEmail={hasEmail} />
 
       <button
         type="button"
