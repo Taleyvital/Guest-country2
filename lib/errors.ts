@@ -5,15 +5,25 @@
  *
  * Traduit au passage les erreurs levées par nos RPC en messages lisibles.
  */
+const FALLBACK = "Une erreur est survenue.";
+
 export function errorMessage(e: unknown): string {
-  const raw =
+  let raw =
     e instanceof Error
       ? e.message
       : typeof e === "object" && e !== null && "message" in e
         ? String((e as { message: unknown }).message)
         : typeof e === "string"
           ? e
-          : "Une erreur est survenue.";
+          : FALLBACK;
+
+  // Un message vide, "{}" ou "[object Object]" ne veut rien dire pour
+  // l'utilisateur : ça arrive quand le serveur répond avec un corps JSON
+  // vide/malformé et que le SDK finit par stringifier l'objet brut plutôt
+  // que d'extraire un vrai message.
+  if (!raw.trim() || raw === "{}" || raw === "[object Object]") {
+    raw = FALLBACK;
+  }
 
   const known: Record<string, string> = {
     "game not found": "Aucune partie avec ce code.",
