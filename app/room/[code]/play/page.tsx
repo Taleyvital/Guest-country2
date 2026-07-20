@@ -154,7 +154,6 @@ export default function PlayPage({ params }: { params: { code: string } }) {
     <CountryFoundScreen
       byName={discovered.by}
       country={discovered.country}
-      stillPlaying={game.status === "playing" && !me.isEliminated}
       onClose={() => setDiscovered(null)}
     />
   ) : null;

@@ -7,6 +7,7 @@ import { flagEmoji } from "@/lib/game/flags";
  *
  * À distinguer de l'EliminatedScreen (là, c'est TA propre réponse qui était fausse).
  * Ici, un adversaire a percé ton pays : tu le découvres en grand, avec qui l'a trouvé.
+ * Trouvé = éliminé : tu deviens spectateur pour le reste de la manche.
  *
  * Rendu au-dessus de tout (même de l'intermission) car, à 2 joueurs, un pays trouvé
  * termine la manche aussitôt : sans cet écran, tu passerais direct aux scores sans
@@ -15,15 +16,12 @@ import { flagEmoji } from "@/lib/game/flags";
 export function CountryFoundScreen({
   byName,
   country,
-  stillPlaying,
   onClose,
 }: {
   /** Qui a deviné ton pays. */
   byName: string;
   /** Ton pays, désormais révélé à tous. */
   country: string;
-  /** La manche continue-t-elle pour toi (tu peux encore deviner les autres) ? */
-  stillPlaying: boolean;
   onClose: () => void;
 }) {
   return (
@@ -69,13 +67,11 @@ export function CountryFoundScreen({
         </div>
 
         <p className="rounded-lg bg-surface-container-low px-4 py-3 text-body-md text-on-surface-variant">
-          {stillPlaying
-            ? "Tu ne peux plus être ciblé, mais tu peux encore deviner les pays des autres."
-            : "La manche est terminée."}
+          Tu es éliminé pour cette manche : tu restes spectateur jusqu'à la suite.
         </p>
 
         <button type="button" onClick={onClose} className="btn-primary w-full rounded-full">
-          {stillPlaying ? "Continuer à jouer" : "Voir la suite"}
+          Voir la suite
         </button>
       </div>
     </div>
