@@ -27,6 +27,8 @@ export type GameScreenProps = {
   /** Le nom complet de MON pays — je l'ai choisi, ce n'est pas un secret pour moi. */
   myCountry?: string;
   letterCost?: number;
+  /** Secondes restantes avant que le tour ne passe automatiquement. `null` = pas de tour actif. */
+  secondsLeft?: number | null;
 
   onAskLetter?: (targetId: string, letter: string) => void;
   onGuessCountry?: (targetId: string, guess: string) => void;
@@ -44,6 +46,7 @@ export function GameScreen({
   regionHint,
   myCountry,
   letterCost = 50,
+  secondsLeft = null,
   onAskLetter,
   onGuessCountry,
   onBack,
@@ -112,6 +115,16 @@ export function GameScreen({
                   : `🎯 Au tour de ${currentTurnPlayer.name}`
                 : "⏳ En attente…"}
             </span>
+            {currentTurnPlayer && secondsLeft !== null && (
+              <span
+                className={[
+                  "ml-3 rounded-full bg-white/20 px-3 py-1 text-label-lg text-white tabular-nums",
+                  secondsLeft <= 5 ? "animate-pulse" : "",
+                ].join(" ")}
+              >
+                {secondsLeft}s
+              </span>
+            )}
           </div>
         </section>
 

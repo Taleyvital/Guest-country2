@@ -24,7 +24,13 @@ export function AccountLinkSection({ hasEmail }: { hasEmail: boolean }) {
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          // `mode` a pu être initialisé avant que `hasEmail` ne devienne vrai
+          // (la session charge en async) : sans ce set explicite, ce bouton
+          // pouvait rouvrir LinkEmailCard au lieu de SignInCard.
+          setMode("signin");
+          setOpen(true);
+        }}
         className="self-center text-label-md text-accent underline"
       >
         Se connecter à un autre compte

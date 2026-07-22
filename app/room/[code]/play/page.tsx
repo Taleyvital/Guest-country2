@@ -127,6 +127,38 @@ export default function PlayPage({ params }: { params: { code: string } }) {
     if (e) setError(errorMessage(e));
   }, []);
 
+  // 20s par tour. N'IMPORTE QUEL téléphone de la partie peut déclencher le passage
+  // (pas seulement celui dont c'est le tour) : c'est justement lui qui ne répond
+  // pas, on ne peut pas dépendre de son horloge ou de sa connexion. Le serveur
+  // revalide le délai (`skip_turn_if_expired`), donc un appel en double ou trop tôt
+  // ne fait rien.
+  const TURN_SECONDS = 20;
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const expiredTurnRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const turnStartedAt = game?.turn_started_at;
+    if (!game || game.status !== "playing" || !turnStartedAt) {
+      setSecondsLeft(null);
+      return;
+    }
+
+    const startedMs = new Date(turnStartedAt).getTime();
+    const tick = () => {
+      const remaining = TURN_SECONDS - Math.floor((Date.now() - startedMs) / 1000);
+      setSecondsLeft(Math.max(0, remaining));
+
+      if (remaining <= 0 && expiredTurnRef.current !== turnStartedAt) {
+        expiredTurnRef.current = turnStartedAt;
+        void getSupabaseBrowserClient().rpc("skip_turn_if_expired", { p_game_id: game.id });
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [game?.turn_started_at, game?.status, game?.id]);
+
   const intermission = Boolean(game?.intermission);
 
   // La partie a basculé : tous les téléphones suivent l'état en base. On ne renvoie au
@@ -193,6 +225,7 @@ export default function PlayPage({ params }: { params: { code: string } }) {
         totalRounds={game.total_rounds}
         regionHint={me.region ?? undefined}
         myCountry={myCountry}
+        secondsLeft={secondsLeft}
         onBack={() => setLeaveOpen(true)}
         onAskLetter={(targetId, letter) =>
           call("ask_letter", { p_target_player_id: targetId, p_letter: letter })
